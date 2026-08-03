@@ -80,7 +80,7 @@
   /* 必ず左右2カラム（svg｜conf-text）。縦積みにしない */
   .config{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 16px}
   .config svg{width:124px;height:124px;flex:0 0 auto}
-  .conf-text{text-align:left;flex:1 1 auto;min-width:0}   /* 中で折り返しOK */
+  .conf-text{text-align:left;flex:0 1 auto;min-width:0;max-width:280px}   /* 伸ばさず中で折り返し。全体は中央寄せ */
   .conf-text .shells{font-size:13px;line-height:1.8}
   .conf-text .shells span{margin-right:10px}
   .conf-text .orb{font-size:11.5px;color:var(--soft);line-height:1.7}
