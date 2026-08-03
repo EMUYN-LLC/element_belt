@@ -314,14 +314,12 @@ function readoutFor(i){
   document.getElementById("collabel").textContent=colLabel(e.z);
 }
 function update(){
-  const max=scene.scrollWidth-scene.clientWidth;
-  const frac=max>0?scene.scrollLeft/max:0.5;
-  track.style.transform=`translateY(${(AMP*(2*frac-1)).toFixed(1)}px)`;   // 螺旋
-  layoutFisheye();                                                        // 魚眼
+  layoutFisheye();
   const i=Math.max(0,Math.min(EL.length-1,Math.round(scene.scrollLeft/CW)));
   if(i!==cur){ cur=i; readoutFor(i); drawConfig(i+1); }
 }
 scene.addEventListener("scroll",update,{passive:true});
+
 
 /* 余白と中央枠の幅を合わせる */
 function sizePads(){
@@ -337,21 +335,52 @@ function sizePads(){
 }
 
 /* ====================== 7. 入力 ====================== */
-let down=false,x0=0,l0=0,flying=false,rafJump=null;
+let down=false,x0=0,y0=0,lastY=0,l0=0,axis=0,vacc=0,flying=false,rafJump=null;
+
+/* 価数列の中を 1 つ動く。dir=-1 軽い側（下）／+1 重い側（上）。一瞬で切替 */
+function navColumn(dir){
+  const z=cur+1, mem=COLMEM[eleCol(z)], idx=mem.indexOf(z), nz=mem[idx+dir];
+  if(nz){ scene.scrollLeft=(nz-1)*CW; update(); }
+}
+
 scene.addEventListener("pointerdown",e=>{
-  down=true; x0=e.clientX; l0=scene.scrollLeft;
+  down=true; x0=e.clientX; y0=e.clientY; lastY=e.clientY; l0=scene.scrollLeft; axis=0; vacc=0;
   scene.classList.add("dragging"); scene.setPointerCapture(e.pointerId);
 });
-scene.addEventListener("pointermove",e=>{ if(down&&!flying) scene.scrollLeft=l0-(e.clientX-x0); });
+scene.addEventListener("pointermove",e=>{
+  if(!down||flying) return;
+  const dx=e.clientX-x0, dy=e.clientY-y0;
+  if(!axis && (Math.abs(dx)>6||Math.abs(dy)>6)) axis=Math.abs(dy)>Math.abs(dx)?'v':'h';
+  if(axis==='h'){ scene.scrollLeft=l0-dx; }                   // 横 → 原子番号順
+  else if(axis==='v'){                                         // 縦 → 価数列を1つずつスライド切替
+    vacc+=e.clientY-lastY; const SV=55;
+    if(vacc>=SV){ vacc=0; navColumn(-1); }                     // 下 → 軽い側
+    else if(vacc<=-SV){ vacc=0; navColumn(+1); }               // 上 → 重い側
+  }
+  lastY=e.clientY;
+});
 function up(){ if(!down) return; down=false; if(flying) return;
   scene.classList.remove("dragging");
-  scene.scrollTo({left:Math.round(scene.scrollLeft/CW)*CW,behavior:"smooth"}); }
+  if(axis!=='v') scene.scrollTo({left:Math.round(scene.scrollLeft/CW)*CW,behavior:"smooth"});
+}
 scene.addEventListener("pointerup",up);
 scene.addEventListener("pointercancel",up);
 scene.addEventListener("keydown",e=>{
   if(e.key==="ArrowRight"){ scene.scrollBy({left:CW,behavior:"smooth"}); e.preventDefault(); }
   if(e.key==="ArrowLeft" ){ scene.scrollBy({left:-CW,behavior:"smooth"}); e.preventDefault(); }
+  if(e.key==="ArrowDown" ){ navColumn(-1); e.preventDefault(); }   // 下 → 軽い側
+  if(e.key==="ArrowUp"   ){ navColumn(+1); e.preventDefault(); }   // 上 → 重い側
 });
+
+/* 縦ホイール＝価数列の中を移動（横ホイールは既定の横スクロールに任せる） */
+let wheelAcc=0;
+scene.addEventListener("wheel",e=>{
+  if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)) return;
+  e.preventDefault();
+  wheelAcc+=e.deltaY;
+  if(wheelAcc>=50){ wheelAcc=0; navColumn(-1); }        // 下 → 軽い側
+  else if(wheelAcc<=-50){ wheelAcc=0; navColumn(+1); }  // 上 → 重い側
+},{passive:false});
 function jumpTo(idx){
   idx=Math.max(0,Math.min(EL.length-1,idx));
   const from=scene.scrollLeft, to=idx*CW, dist=to-from;
