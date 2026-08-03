@@ -320,6 +320,17 @@ function update(){
 }
 scene.addEventListener("scroll",update,{passive:true});
 
+/* スクロールが止まったら最寄りのセルへ吸い付く（中央枠と位置を合わせる） */
+let snapTimer=null;
+scene.addEventListener("scroll",()=>{
+  clearTimeout(snapTimer);
+  snapTimer=setTimeout(()=>{
+    if(down||flying) return;                       // ドラッグ中・ジャンプ中は触らない
+    const target=Math.round(scene.scrollLeft/CW)*CW;
+    if(Math.abs(scene.scrollLeft-target)>0.5) scene.scrollTo({left:target,behavior:"smooth"});
+  },110);
+},{passive:true});
+
 
 /* 余白と中央枠の幅を合わせる */
 function sizePads(){
