@@ -74,6 +74,8 @@
   /* 右上に置く凡例（枠なし・縦積み） */
   .legend{position:fixed;top:8px;right:12px;z-index:25;
     display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--soft)}
+  /* 中央帯の価数を左端に（legend と同じ高さ） */
+  .collabel{position:fixed;left:14px;top:8px;z-index:25;font-size:14px;font-weight:600;color:var(--front)}
   .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;border:2px solid;margin-right:5px;vertical-align:-1px}
   /* 必ず左右2カラム（svg｜conf-text）。縦積みにしない */
   .config{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 16px}
@@ -110,6 +112,9 @@
   <span><i style="background:var(--d-bg);border-color:var(--d)"></i>d</span>
   <span><i style="background:var(--f-bg);border-color:var(--f)"></i>f</span>
 </div>
+
+<!-- 中央（ピンク帯）の元素の価数列 -->
+<div class="collabel" id="collabel"></div>
 
 <footer class="footer" id="footer">
   <div class="config">
@@ -306,6 +311,7 @@ function readoutFor(i){
   document.getElementById("jp").textContent=e.j;
   document.getElementById("meta").innerHTML=`${e.z} &nbsp;${e.s}`;
   document.getElementById("cat").textContent=`${CATOF[e.z]||""} ・ ${e.b} ブロック`;
+  document.getElementById("collabel").textContent=colLabel(e.z);
 }
 function update(){
   const max=scene.scrollWidth-scene.clientWidth;
@@ -322,8 +328,10 @@ function sizePads(){
   PAD=(scene.clientWidth-CW)/2;
   track.style.width=(PAD*2+EL.length*CW)+"px";
   document.getElementById("centerbox").style.width=(CW*1.5)+"px";
-  /* 凡例は readout の下（viewport の見えている部分の右上）へ */
-  document.getElementById("legend").style.top=(document.querySelector(".readout").offsetHeight+6)+"px";
+  /* 凡例・価数ラベルは readout の下（viewport の見えている部分）へ。同じ高さ */
+  const topY=(document.querySelector(".readout").offsetHeight+6)+"px";
+  document.getElementById("legend").style.top=topY;
+  document.getElementById("collabel").style.top=topY;
   buildTrack();
   layoutFisheye();
 }
