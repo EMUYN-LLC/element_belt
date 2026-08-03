@@ -30,30 +30,27 @@
     --s-bg:#f7dcd8; --p-bg:#d8e7f3; --d-bg:#f8e7c9; --f-bg:#e6dcf0;
   }
   *{box-sizing:border-box}
-  html{height:100%}
-  body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);
-    font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;-webkit-text-size-adjust:100%;
-    display:flex;flex-direction:column}
-  .readout{flex:0 0 auto}
+  html,body{height:100%}
+  body{margin:0;overflow:hidden;background:var(--paper);color:var(--ink);
+    font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;-webkit-text-size-adjust:100%}
   .num{font-family:"Bahnschrift","DIN Alternate","Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums}
 
-  .readout{text-align:center;padding:12px 16px 6px}
+  .readout{position:fixed;top:0;left:0;right:0;z-index:20;text-align:center;padding:10px 16px 14px;
+    background:linear-gradient(var(--paper) 62%, rgba(233,237,241,0))}
   .readout .jp{font-size:clamp(16px,4.2vw,21px);font-weight:600}
   .readout .meta{margin-top:3px;font-size:12px;color:var(--soft);letter-spacing:.06em}
   .readout .cat{margin-top:4px;font-size:11.5px;color:var(--soft)}
   .readout .col{margin-top:5px;font-size:11.5px;color:var(--soft)}
   .readout .col b{color:var(--ink)}
 
-  /* ヘッダーとフッターの間いっぱいに広げ、中の周期表を上下中央に置く */
-  .stage{position:relative;flex:1 1 auto;min-height:0;
-    display:flex;flex-direction:column;justify-content:center}
-  .viewport{position:relative;width:100%}
-  .scene{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;cursor:grab;
-    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-    background:var(--paper2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  /* 周期表を全画面に広げ、readout / footer をこの上に重ねる。中身は上下中央 */
+  .viewport{position:fixed;inset:0;overflow:hidden}
+  .scene{height:100%;display:flex;align-items:center;
+    overflow-x:auto;overflow-y:hidden;touch-action:pan-x;cursor:grab;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;background:var(--paper2)}
   .scene::-webkit-scrollbar{display:none}
   .scene.dragging{cursor:grabbing;scroll-snap-type:none}
-  .track{position:relative;will-change:transform}
+  .track{position:relative;flex:0 0 auto;will-change:transform}
   .col{position:absolute;top:0;height:100%;transform-origin:center;will-change:transform}
 
   .cell{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -74,8 +71,8 @@
   .centerbox{position:absolute;left:50%;top:0;bottom:0;transform:translateX(-50%);
     background:rgba(198,43,63,.05);pointer-events:none;z-index:1}
 
-  /* メインエリア右上に置く凡例（枠なし・縦積み） */
-  .legend{position:absolute;top:8px;right:12px;z-index:6;
+  /* 右上に置く凡例（枠なし・縦積み） */
+  .legend{position:fixed;top:8px;right:12px;z-index:25;
     display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--soft)}
   .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;border:2px solid;margin-right:5px;vertical-align:-1px}
   /* 必ず左右2カラム（svg｜conf-text）。縦積みにしない */
@@ -93,25 +90,25 @@
 </style>
 
 
+<!-- 全画面の周期表。readout / legend / footer をこの上に重ねる -->
+<div class="viewport">
+  <div class="scene" id="scene" tabindex="0" aria-label="元素の帯">
+    <div class="track" id="track"></div>
+  </div>
+  <div class="centerbox" id="centerbox"></div>
+</div>
+
 <div class="readout">
   <div class="jp" id="jp">カルシウム</div>
   <div class="meta num" id="meta">20 &nbsp;Ca</div>
   <div class="cat" id="cat"></div>
 </div>
 
-<div class="stage">
-  <div class="legend" id="legend">
-    <span><i style="background:var(--s-bg);border-color:var(--s)"></i>s</span>
-    <span><i style="background:var(--p-bg);border-color:var(--p)"></i>p</span>
-    <span><i style="background:var(--d-bg);border-color:var(--d)"></i>d</span>
-    <span><i style="background:var(--f-bg);border-color:var(--f)"></i>f</span>
-  </div>
-  <div class="viewport">
-    <div class="scene" id="scene" tabindex="0" aria-label="元素の帯">
-      <div class="track" id="track"></div>
-    </div>
-    <div class="centerbox" id="centerbox"></div>
-  </div>
+<div class="legend" id="legend">
+  <span><i style="background:var(--s-bg);border-color:var(--s)"></i>s</span>
+  <span><i style="background:var(--p-bg);border-color:var(--p)"></i>p</span>
+  <span><i style="background:var(--d-bg);border-color:var(--d)"></i>d</span>
+  <span><i style="background:var(--f-bg);border-color:var(--f)"></i>f</span>
 </div>
 
 <footer class="footer" id="footer">
@@ -325,6 +322,8 @@ function sizePads(){
   PAD=(scene.clientWidth-CW)/2;
   track.style.width=(PAD*2+EL.length*CW)+"px";
   document.getElementById("centerbox").style.width=(CW*1.5)+"px";
+  /* 凡例は readout の下（viewport の見えている部分の右上）へ */
+  document.getElementById("legend").style.top=(document.querySelector(".readout").offsetHeight+6)+"px";
   buildTrack();
   layoutFisheye();
 }
