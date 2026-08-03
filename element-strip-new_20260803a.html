@@ -1,0 +1,417 @@
+<!doctype html>
+<!--
+==========================================================================
+  元素の帯 ── エレメンタッチ配列（新設計）
+--------------------------------------------------------------------------
+  中央に 1 本の element strip（原子番号順・全118）。
+  その上下に、エレメンタッチと同じ「価数列（同族）」の元素を並べる。
+    上 = 列内で軽い（原子番号が小さい）関連元素
+    下 = 列内で重い（原子番号が大きい）関連元素
+  関連元素がない位置は空白（断裂してよい）。
+  全体は一体で左右スクロールする（帯どうしはずれない）。
+
+  価数列の定義（エレメンタッチ）:
+    列＝価数。s+p の 8 列に、d・f ブロックの両端を折り込む。
+      2価列 … Be Mg Ca Sr Ba Ra ＋ Zn Cd Hg Cn
+      3価列 … B Al Ga In Tl Nh ＋ Sc Y La Lu Ac Lr
+      4価列 … C Si Ge Sn Pb Fl ＋ Ti Zr Hf Rf
+    d 中間(V〜Cu)・f 中間(Ce〜Yb 等)は独自の列。
+==========================================================================
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>元素の帯 ── エレメンタッチ配列</title>
+
+<style>
+  :root{
+    --paper:#e9edf1; --paper2:#f7f9fa; --ink:#152029; --soft:#5b6b78; --rule:#c0cbd4;
+    --front:#c62b3f;
+    --s:#c0392b; --p:#1f6f9c; --d:#b06a12; --f:#6f4a93;
+    --s-bg:#f7dcd8; --p-bg:#d8e7f3; --d-bg:#f8e7c9; --f-bg:#e6dcf0;
+    --cw:58px;            /* マス幅。JS が実測で上書き */
+    --pad:0px;            /* 両端余白。JS が計算 */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+    font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;-webkit-text-size-adjust:100%}
+  .num{font-family:"Bahnschrift","DIN Alternate","Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums}
+
+  /* 上部の読み取り表示 */
+  .readout{text-align:center;padding:12px 16px 8px}
+  .readout .jp{font-size:clamp(16px,4.2vw,21px);font-weight:600}
+  .readout .meta{margin-top:3px;font-size:12px;color:var(--soft);letter-spacing:.06em}
+  .readout .cat{margin-top:4px;font-size:11.5px;color:var(--soft)}
+  .readout .col{margin-top:5px;font-size:11.5px;color:var(--soft)}
+  .readout .col b{color:var(--ink)}
+
+  /* スクロールの舞台。中央に固定の枠を重ねる */
+  .stage{position:relative}
+  .scene{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;cursor:grab;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    background:var(--paper2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .scene::-webkit-scrollbar{display:none}
+  .scene.dragging{cursor:grabbing;scroll-snap-type:none}
+
+  .rows{width:max-content;will-change:transform}
+  .row{display:flex;padding:0 var(--pad)}
+
+  /* マス共通 */
+  .cell{flex:0 0 var(--cw);min-width:0;max-width:var(--cw);overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border-right:1px solid rgba(255,255,255,.7);user-select:none;-webkit-touch-callout:none;position:relative}
+  .cell .z{color:var(--soft);line-height:1}
+  .cell .sym{font-family:"Bahnschrift","DIN Alternate","Helvetica Neue",sans-serif;font-weight:600;line-height:1}
+  .cell .jp{color:var(--soft);line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cell[data-b="s"]{background:var(--s-bg)} .cell[data-b="p"]{background:var(--p-bg)}
+  .cell[data-b="d"]{background:var(--d-bg)} .cell[data-b="f"]{background:var(--f-bg)}
+  .cell.blank{background:transparent;border-right-color:transparent}
+  /* いま中央にある元素の価数列（斜行）を強調 */
+  .cell.on{outline:2px solid var(--front);outline-offset:-2px;z-index:4}
+
+  /* 中央の主帯 */
+  .row.main .cell{height:66px;gap:2px;scroll-snap-align:center}
+  .row.main .cell .z{font-size:10px}
+  .row.main .cell .sym{font-size:22px}
+  .row.main .cell .jp{font-size:8.5px}
+
+  /* 上下の関連帯。遠いほど小さく薄く（JS が opacity を付与） */
+  .row.fam .cell{height:26px}
+  .row.fam .cell .sym{font-size:13px}
+  .row.fam .cell .z{font-size:8px}
+
+  /* 中央の固定枠。全帯を縦に貫く */
+  .centerbox{position:absolute;left:50%;top:0;bottom:0;width:var(--cw);transform:translateX(-50%);
+    background:rgba(198,43,63,.04);pointer-events:none;z-index:1}
+
+  /* 凡例・電子配置・操作説明 */
+  .legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;padding:12px 16px 0;font-size:11px;color:var(--soft)}
+  .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;border:2px solid;margin-right:5px;vertical-align:-1px}
+  .config{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;padding:14px 16px 0}
+  .config svg{width:168px;height:168px;flex:0 0 auto}
+  .conf-text{text-align:left;min-width:150px}
+  .conf-text .shells{font-size:13px;letter-spacing:.06em;line-height:1.9}
+  .conf-text .shells span{margin-right:10px}
+  .conf-text .orb{font-size:11.5px;color:var(--soft);line-height:1.8;max-width:230px}
+  .hint{text-align:center;font-size:11px;color:var(--soft);padding:12px 16px 24px;line-height:1.7}
+</style>
+
+
+<div class="readout">
+  <div class="jp" id="jp">水素</div>
+  <div class="meta num" id="meta">1 &nbsp;H</div>
+  <div class="cat" id="cat"></div>
+  <div class="col" id="col"></div>
+</div>
+
+<div class="stage">
+  <div class="scene" id="scene" tabindex="0" aria-label="元素の帯">
+    <div class="rows" id="rows"></div>
+  </div>
+  <div class="centerbox" id="centerbox"></div>
+</div>
+
+<div class="legend">
+  <span><i style="background:var(--s-bg);border-color:var(--s)"></i>s</span>
+  <span><i style="background:var(--p-bg);border-color:var(--p)"></i>p</span>
+  <span><i style="background:var(--d-bg);border-color:var(--d)"></i>d</span>
+  <span><i style="background:var(--f-bg);border-color:var(--f)"></i>f</span>
+</div>
+
+<div class="config">
+  <svg id="bohr" viewBox="0 0 200 200" aria-hidden="true"></svg>
+  <div class="conf-text">
+    <div class="shells num" id="shells"></div>
+    <div class="orb num" id="orb"></div>
+  </div>
+</div>
+
+<div class="hint">
+  ドラッグ／スワイプ・矢印キーで左右に動かします。中央の枠の縦一列が、その元素の<b>価数列（エレメンタッチの同族）</b>。<br>
+  上ほど軽く、下ほど重い関連元素。例：Ca の下に Zn → Sr → Cd（2価列）。関連元素がない位置は空白です。<br>
+  どのマスもダブルクリック（長押し）でそこへ一気に移動します。
+</div>
+
+
+<script>
+/* ======================================================================
+   1. 元素データ
+   ====================================================================== */
+const RAW=`H 水素|He ヘリウム|Li リチウム|Be ベリリウム|B ホウ素|C 炭素|N 窒素|O 酸素|F フッ素|Ne ネオン|Na ナトリウム|Mg マグネシウム|Al アルミニウム|Si ケイ素|P リン|S 硫黄|Cl 塩素|Ar アルゴン|K カリウム|Ca カルシウム|Sc スカンジウム|Ti チタン|V バナジウム|Cr クロム|Mn マンガン|Fe 鉄|Co コバルト|Ni ニッケル|Cu 銅|Zn 亜鉛|Ga ガリウム|Ge ゲルマニウム|As ヒ素|Se セレン|Br 臭素|Kr クリプトン|Rb ルビジウム|Sr ストロンチウム|Y イットリウム|Zr ジルコニウム|Nb ニオブ|Mo モリブデン|Tc テクネチウム|Ru ルテニウム|Rh ロジウム|Pd パラジウム|Ag 銀|Cd カドミウム|In インジウム|Sn スズ|Sb アンチモン|Te テルル|I ヨウ素|Xe キセノン|Cs セシウム|Ba バリウム|La ランタン|Ce セリウム|Pr プラセオジム|Nd ネオジム|Pm プロメチウム|Sm サマリウム|Eu ユウロピウム|Gd ガドリニウム|Tb テルビウム|Dy ジスプロシウム|Ho ホルミウム|Er エルビウム|Tm ツリウム|Yb イッテルビウム|Lu ルテチウム|Hf ハフニウム|Ta タンタル|W タングステン|Re レニウム|Os オスミウム|Ir イリジウム|Pt 白金|Au 金|Hg 水銀|Tl タリウム|Pb 鉛|Bi ビスマス|Po ポロニウム|At アスタチン|Rn ラドン|Fr フランシウム|Ra ラジウム|Ac アクチニウム|Th トリウム|Pa プロトアクチニウム|U ウラン|Np ネプツニウム|Pu プルトニウム|Am アメリシウム|Cm キュリウム|Bk バークリウム|Cf カリホルニウム|Es アインスタイニウム|Fm フェルミウム|Md メンデレビウム|No ノーベリウム|Lr ローレンシウム|Rf ラザホージウム|Db ドブニウム|Sg シーボーギウム|Bh ボーリウム|Hs ハッシウム|Mt マイトネリウム|Ds ダームスタチウム|Rg レントゲニウム|Cn コペルニシウム|Nh ニホニウム|Fl フレロビウム|Mc モスコビウム|Lv リバモリウム|Ts テネシン|Og オガネソン`;
+const EL=RAW.split("|").map((t,i)=>{const k=t.indexOf(" ");return{z:i+1,s:t.slice(0,k),j:t.slice(k+1)};});
+
+
+/* ======================================================================
+   2. 価数列モデル（エレメンタッチ）
+   ====================================================================== */
+/* f 中間（円筒からはみ出す独自列）。Ce,Th は 4価列へ折り込むので除く */
+const isFmid=z=>(z>=59&&z<=70)||(z>=91&&z<=102);
+function eleGroup(z){
+  if(z===1) return 1; if(z===2) return 18;
+  if(z>=3&&z<=10)  return [1,2,13,14,15,16,17,18][z-3];
+  if(z>=11&&z<=18) return [1,2,13,14,15,16,17,18][z-11];
+  if(z>=19&&z<=36) return z-18;
+  if(z>=37&&z<=54) return z-36;
+  if(z===55) return 1; if(z===56) return 2;
+  if(z===57||z===71) return 3;         // La, Lu → 3価
+  if(z===58||z===90) return 4;         // Ce, Th → 4価（設計図どおり）
+  if(isFmid(z)) return 0;
+  if(z>=72&&z<=86) return z-68;
+  if(z===87) return 1; if(z===88) return 2;
+  if(z===89||z===103) return 3;        // Ac, Lr → 3価
+  if(z>=104&&z<=118) return z-100;
+  return 0;
+}
+function eleCol(z){
+  const g=eleGroup(z);
+  if(isFmid(z)) return 'f'+(z<=70?z-58:z-90);
+  if([57,71,89,103].includes(z)) return 'v3';
+  if(g===1) return 'v1'; if(g===2) return 'v2';
+  if(g>=13) return 'v'+(g-10);
+  if(g===3) return 'v3'; if(g===4) return 'v4'; if(g===12) return 'v2';
+  return 'd'+g;
+}
+function blockOf(z){
+  if((z>=57&&z<=70)||(z>=89&&z<=102)) return 'f';   // ランタノイド・アクチノイド（色分け用）
+  const g=eleGroup(z);
+  if(g===1||g===2) return 's';
+  if(g>=13) return 'p';
+  return 'd';
+}
+/* 列 → メンバー（原子番号昇順）、各元素の列内位置 */
+const COLMEM={}, COLIDX={};
+for(let z=1;z<=118;z++){ (COLMEM[eleCol(z)] ??= []).push(z); }
+Object.values(COLMEM).forEach(a=>a.forEach((z,i)=>{ COLIDX[z]=i; }));
+EL.forEach(e=>{ e.b=blockOf(e.z); });
+
+/* 元素 z の関連元素＝価数列の中で k だけ隣。なければ null。
+   実物のエレメンタッチを正面から見たとき、縦の視線は「同じ角度（＝同じ
+   価数）の全元素」を貫き、螺旋は常に下へ降りるので、縦一列は
+   価数列のメンバーを原子番号順に並べたものになる。
+     2価の縦線 … Be Mg Ca Zn Sr Cd Ba Hg Ra Cn（Ca と Cd が同列）
+   横の完全な連続はリボン＝中央の帯が担い、上下の段は筒の周長
+  （sp=8, d=10, f=14）が違うぶん部分的な連続になる。それが実物の姿。
+   k<0 が軽い側（上）、k>0 が重い側（下） */
+function famZ(z,k){
+  const mem=COLMEM[eleCol(z)], j=COLIDX[z]+k;
+  return (j>=0 && j<mem.length) ? mem[j] : null;
+}
+
+/* 列の日本語ラベル */
+const VLABEL={v1:"1価",v2:"2価",v3:"3価",v4:"4価",v5:"5価",v6:"6価",v7:"7価",v8:"貴ガス"};
+const colLabel=z=>{
+  const c=eleCol(z);
+  return VLABEL[c] || (c[0]==='d' ? `d ${c.slice(1)}族` : "f 中間");
+};
+
+
+/* ======================================================================
+   3. 分類（アルカリ金属・貴ガスなど）
+   ====================================================================== */
+const CATS=[
+  ["アルカリ金属",[[3,3],[11,11],[19,19],[37,37],[55,55],[87,87]]],
+  ["アルカリ土類金属",[[4,4],[12,12],[20,20],[38,38],[56,56],[88,88]]],
+  ["遷移金属",[[21,30],[39,48],[72,80],[104,108]]],
+  ["ポスト遷移金属",[[13,13],[31,31],[49,50],[81,85]]],
+  ["半金属",[[5,5],[14,14],[32,33],[51,52]]],
+  ["反応性非金属",[[1,1],[6,9],[15,17],[34,35],[53,53]]],
+  ["貴ガス",[[2,2],[10,10],[18,18],[36,36],[54,54],[86,86]]],
+  ["ランタノイド",[[57,71]]],["アクチノイド",[[89,103]]],["不明",[[109,118]]]
+];
+const CATOF={};
+CATS.forEach(([n,rs])=>rs.forEach(([a,b])=>{for(let z=a;z<=b;z++)CATOF[z]=n;}));
+
+
+/* ======================================================================
+   4. 帯の組み立て
+   ====================================================================== */
+const NUP=7, NDN=7;                       // 上下に並べる段数
+const AMP=150;                            // 螺旋の振れ幅(px)。左端で上・右端で下（はみ出す端は空白なので大胆に）
+const DIRS=[];
+for(let k=NUP;k>=1;k--) DIRS.push(-k);     // 上（軽い、遠いものが上）
+DIRS.push(0);                              // 中央（主帯）
+for(let k=1;k<=NDN;k++) DIRS.push(k);      // 下（重い）
+
+const rows=document.getElementById("rows");
+const scene=document.getElementById("scene");
+
+const cellHTMLmain=e=>`<span class="z num">${e.z}</span><span class="sym">${e.s}</span><span class="jp">${e.j}</span>`;
+const cellHTMLfam =e=>`<span class="sym">${e.s}</span>`;
+
+const ROWEL=[];                           // 段ごとの行要素（強調に使う）
+DIRS.forEach(dir=>{
+  const row=document.createElement("div");
+  row.className="row "+(dir===0?"main":"fam");
+  if(dir!==0) row.style.opacity=Math.max(0.3, 0.9-(Math.abs(dir)-1)*0.09);
+  for(let i=0;i<EL.length;i++){
+    const d=document.createElement("div");
+    d.className="cell";
+    const z = dir===0 ? (i+1) : famZ(i+1,dir);   // 主帯はその元素、関連帯は同族
+    if(z==null){
+      d.classList.add("blank");
+    }else{
+      const e=EL[z-1];
+      d.dataset.b=e.b; d.dataset.i=e.z-1;
+      d.innerHTML = dir===0 ? cellHTMLmain(e) : cellHTMLfam(e);
+    }
+    row.appendChild(d);
+  }
+  rows.appendChild(row);
+  ROWEL.push(row);
+});
+
+
+/* ======================================================================
+   5. 電子配置
+   ====================================================================== */
+const ORB=[["1s",2],["2s",2],["2p",6],["3s",2],["3p",6],["4s",2],["3d",10],["4p",6],
+ ["5s",2],["4d",10],["5p",6],["6s",2],["4f",14],["5d",10],["6p",6],["7s",2],["5f",14],["6d",10],["7p",6]];
+const ORDER=["1s","2s","2p","3s","3p","3d","4s","4p","4d","4f","5s","5p","5d","5f","6s","6p","6d","7s","7p"];
+const EXC={
+  24:[["4s",-1],["3d",1]],29:[["4s",-1],["3d",1]],41:[["5s",-1],["4d",1]],42:[["5s",-1],["4d",1]],
+  44:[["5s",-1],["4d",1]],45:[["5s",-1],["4d",1]],46:[["5s",-2],["4d",2]],47:[["5s",-1],["4d",1]],
+  57:[["4f",-1],["5d",1]],58:[["4f",-1],["5d",1]],64:[["4f",-1],["5d",1]],78:[["6s",-1],["5d",1]],
+  79:[["6s",-1],["5d",1]],89:[["5f",-1],["6d",1]],90:[["5f",-2],["6d",2]],91:[["5f",-1],["6d",1]],
+  92:[["5f",-1],["6d",1]],93:[["5f",-1],["6d",1]],96:[["5f",-1],["6d",1]],103:[["6d",-1],["7p",1]]
+};
+const SUP="⁰¹²³⁴⁵⁶⁷⁸⁹", sup=n=>String(n).split("").map(c=>SUP[+c]).join("");
+const SHELL="KLMNOPQ", OCOL={s:"var(--s)",p:"var(--p)",d:"var(--d)",f:"var(--f)"};
+function config(z){
+  const c={}; ORB.forEach(([k])=>c[k]=0);
+  let e=z;
+  for(const [k,cap] of ORB){ const t=Math.min(cap,e); c[k]=t; e-=t; if(e<=0) break; }
+  (EXC[z]||[]).forEach(([k,d])=>c[k]+=d);
+  return c;
+}
+function drawConfig(z){
+  const c=config(z), el=EL[z-1];
+  const shells=[];
+  for(let n=1;n<=7;n++){
+    const subs=ORDER.filter(k=>+k[0]===n && c[k]>0).map(k=>({t:k[1],n:c[k]}));
+    const tot=subs.reduce((a,b)=>a+b.n,0);
+    if(tot>0) shells.push({n,subs,tot});
+  }
+  let s="";
+  shells.forEach(sh=>{
+    const r=14+(sh.n-1)*13;
+    s+=`<circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--rule)" stroke-width="1"/>`;
+    const dots=[]; sh.subs.forEach(su=>{ for(let i=0;i<su.n;i++) dots.push(su.t); });
+    dots.forEach((t,i)=>{
+      const a=(-90+i*360/dots.length)*Math.PI/180;
+      s+=`<circle cx="${(100+r*Math.cos(a)).toFixed(2)}" cy="${(100+r*Math.sin(a)).toFixed(2)}" r="2.6" fill="${OCOL[t]}"/>`;
+    });
+  });
+  s+=`<circle cx="100" cy="100" r="9.5" fill="var(--ink)"/>`;
+  s+=`<text x="100" y="103.4" text-anchor="middle" font-size="9" fill="#fff"
+        font-family="Bahnschrift,DIN Alternate,Helvetica Neue,sans-serif" font-weight="600">${el.s}</text>`;
+  document.getElementById("bohr").innerHTML=s;
+  document.getElementById("shells").innerHTML=shells.map(sh=>`<span>${SHELL[sh.n-1]} ${sh.tot}</span>`).join("");
+  document.getElementById("orb").innerHTML=
+    ORDER.filter(k=>c[k]>0).map(k=>`<span style="color:${OCOL[k[1]]}">${k+sup(c[k])}</span>`).join(" ");
+}
+
+
+/* ======================================================================
+   6. スクロール位置 → 表示
+   ====================================================================== */
+let cellW=58;
+function sizePads(){
+  cellW=rows.querySelector(".row.main .cell").offsetWidth;
+  document.documentElement.style.setProperty("--pad",((scene.clientWidth-cellW)/2)+"px");
+}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+let cur=-1;
+function readoutFor(i){
+  const e=EL[i];
+  document.getElementById("jp").textContent=e.j;
+  document.getElementById("meta").innerHTML=`${e.z} &nbsp;${e.s}`;
+  document.getElementById("cat").textContent=`${CATOF[e.z]||""} ・ ${e.b} ブロック`;
+  const mem=COLMEM[eleCol(e.z)];
+  document.getElementById("col").innerHTML=
+    `<b>${colLabel(e.z)}</b>の列： `+mem.map(z=> z===e.z?`<b>${EL[z-1].s}</b>`:EL[z-1].s).join(" ");
+}
+let hiIdx=-1;
+function highlightColumn(i){
+  ROWEL.forEach(row=>{
+    if(hiIdx>=0){ const c=row.children[hiIdx]; if(c) c.classList.remove("on"); }
+    const c=row.children[i]; if(c && !c.classList.contains("blank")) c.classList.add("on");
+  });
+  hiIdx=i;
+}
+function update(){
+  /* 螺旋：スクロール位置に応じて図全体を上下させる。
+     左端(frac=0)で上へ(-AMP)、右端(frac=1)で下へ(+AMP) */
+  const max=scene.scrollWidth-scene.clientWidth;
+  const frac=max>0 ? scene.scrollLeft/max : 0.5;
+  rows.style.transform=`translateY(${(AMP*(2*frac-1)).toFixed(1)}px)`;
+
+  const i=clamp(Math.round(scene.scrollLeft/cellW),0,EL.length-1);
+  if(i!==cur){ cur=i; readoutFor(i); drawConfig(i+1); highlightColumn(i); }
+}
+scene.addEventListener("scroll",update,{passive:true});
+
+
+/* ======================================================================
+   7. 入力（ドラッグ・キー・ジャンプ）
+   ====================================================================== */
+let down=false,x0=0,l0=0,flying=false,rafJump=null;
+scene.addEventListener("pointerdown",e=>{
+  down=true; x0=e.clientX; l0=scene.scrollLeft;
+  scene.classList.add("dragging"); scene.setPointerCapture(e.pointerId);
+});
+scene.addEventListener("pointermove",e=>{ if(down&&!flying) scene.scrollLeft=l0-(e.clientX-x0); });
+function up(){
+  if(!down) return; down=false;
+  if(flying) return;
+  scene.classList.remove("dragging");
+  scene.scrollTo({left:Math.round(scene.scrollLeft/cellW)*cellW,behavior:"smooth"});
+}
+scene.addEventListener("pointerup",up);
+scene.addEventListener("pointercancel",up);
+scene.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"){ scene.scrollBy({left:cellW,behavior:"smooth"}); e.preventDefault(); }
+  if(e.key==="ArrowLeft" ){ scene.scrollBy({left:-cellW,behavior:"smooth"}); e.preventDefault(); }
+});
+
+function jumpTo(idx){
+  idx=clamp(idx,0,EL.length-1);
+  const from=scene.scrollLeft, to=idx*cellW, dist=to-from;
+  if(Math.abs(dist)<1) return;
+  cancelAnimationFrame(rafJump); flying=true; scene.classList.add("dragging");
+  const dur=Math.min(950,260+Math.abs(dist)/cellW*9), t0=performance.now();
+  const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+  const step=now=>{
+    const k=Math.min(1,(now-t0)/dur);
+    scene.scrollLeft=from+dist*ease(k);
+    if(k<1) rafJump=requestAnimationFrame(step);
+    else{ scene.scrollLeft=to; flying=false; scene.classList.remove("dragging"); update(); }
+  };
+  rafJump=requestAnimationFrame(step);
+}
+
+/* ダブルクリック / 長押しでそのマスへ */
+let lastIdx=-1,lastT=0,tm=null,sx=0,sy=0;
+const cancel=()=>{ if(tm){clearTimeout(tm);tm=null;} };
+scene.addEventListener("pointerdown",e=>{
+  const c=e.target.closest(".cell");
+  if(!c || c.dataset.i===undefined) return;
+  const idx=+c.dataset.i, now=performance.now();
+  if(idx===lastIdx && now-lastT<430){ cancel(); lastIdx=-1; jumpTo(idx); return; }
+  lastIdx=idx; lastT=now; sx=e.clientX; sy=e.clientY;
+  tm=setTimeout(()=>{ tm=null; lastIdx=-1; jumpTo(idx); },480);
+});
+scene.addEventListener("pointermove",e=>{
+  if(tm && (Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)){ cancel(); lastIdx=-1; }
+});
+scene.addEventListener("pointerup",cancel);
+scene.addEventListener("pointercancel",()=>{ cancel(); lastIdx=-1; });
+scene.addEventListener("contextmenu",e=>e.preventDefault());
+
+
+/* ======================================================================
+   起動
+   ====================================================================== */
+addEventListener("resize",()=>{ sizePads(); update(); });
+sizePads();
+update();
+</script>
