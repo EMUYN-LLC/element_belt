@@ -1082,12 +1082,8 @@
       ["7p", 1],
     ],
   };
-  const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹",
-    sup = (n) =>
-      String(n)
-        .split("")
-        .map((c) => SUP[+c])
-        .join("");
+  /* 電子数を HTML の上付き文字で表示（UTF 上付き文字は使わない） */
+  const sup = (n) => `<sup>${n}</sup>`;
   const SHELL = "KLMNOPQ",
     OCOL = { s: "var(--s)", p: "var(--p)", d: "var(--d)", f: "var(--f)" };
   function config(z) {
@@ -1439,7 +1435,7 @@
       tip_shells:
         "原子の中では、中心の原子核のまわりを<b>電子（マイナスの粒）</b>が回っています。電子は<b>殻（から）</b>という層に分かれて入ります。<br>ここは各層に入っている電子の数。内側から <b>K・L・M・N…</b> の順に数えます。",
       tip_orb:
-        "電子が実際にどの部屋（<b>軌道</b>）に入っているかを表したもので、<b>電子配置</b>といいます。<br>例: <b>1s²</b> は『1s という部屋に電子が 2 個』の意味。右肩の小さな数字が電子の数、色は <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> という部屋の種類を表します。",
+        "電子が実際にどの部屋（<b>軌道</b>）に入っているかを表したもので、<b>電子配置</b>といいます。<br>例: <b>1s<sup>2</sup></b> は『1s という部屋に電子が 2 個』の意味。右肩の小さな数字が電子の数、色は <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> という部屋の種類を表します。",
       menu_content: `
     <h2 id="menu-title" class="menu-h1">「元素ベルト」の使い方</h2>
 
@@ -1509,7 +1505,7 @@
       tip_shells:
         "Inside an atom, <b>electrons (negative particles)</b> orbit the central nucleus. Electrons fill in layers called <b>shells</b>.<br>These are the numbers of electrons in each shell, counted from the inside as <b>K, L, M, N…</b>",
       tip_orb:
-        "This shows which room (<b>orbital</b>) each electron actually occupies; it is called the <b>electron configuration</b>.<br>Example: <b>1s²</b> means 'two electrons in the room called 1s.' The small superscript number is the electron count, and the colour shows the room type: <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, <span class='f'>f</span>.",
+        "This shows which room (<b>orbital</b>) each electron actually occupies; it is called the <b>electron configuration</b>.<br>Example: <b>1s<sup>2</sup></b> means 'two electrons in the room called 1s.' The small superscript number is the electron count, and the colour shows the room type: <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, <span class='f'>f</span>.",
       menu_content: `
     <h2 id="menu-title" class="menu-h1">How to use “Element Belt”</h2>
 
