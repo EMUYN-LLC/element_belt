@@ -1169,6 +1169,14 @@
   }
   function update() {
     layoutFisheye();
+    /* 螺旋の上下動：横スクロール位置に応じて帯全体を上下させる。
+       左端(frac=0)で上へ(-AMP)、右端(frac=1)で下へ(+AMP)。
+       帯（strip）が螺旋を降りていくイメージを出しつつ、端の列を上下に逃がして
+       中央の見せたい列を表示領域に収める（はみ出し防止）目的も兼ねる */
+    const span = (EL.length - 1) * CW;
+    const frac =
+      span > 0 ? Math.max(0, Math.min(1, scene.scrollLeft / span)) : 0.5;
+    track.style.transform = `translateY(${(AMP * (2 * frac - 1)).toFixed(1)}px)`;
     const i = Math.max(
       0,
       Math.min(EL.length - 1, Math.round(scene.scrollLeft / CW))
