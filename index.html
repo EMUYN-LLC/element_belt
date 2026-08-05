@@ -505,7 +505,7 @@
 
 <!-- 全画面の周期表。readout / legend / footer をこの上に重ねる -->
 <div class="viewport">
-  <div class="scene" id="scene" tabindex="0" aria-label="元素ベルト">
+  <div class="scene" id="scene" tabindex="0" aria-label="元素ベルト" data-i18n-aria="aria_scene">
     <div class="track" id="track"></div>
   </div>
   <div class="centerbox" id="centerbox"></div>
@@ -528,7 +528,7 @@
 </button>
 
 <div class="readout">
-  <div class="jp" id="jp">カルシウム</div>
+  <div class="jp" id="jp"></div>
   <div class="meta num" id="meta" data-i18n-tip="tip_meta">20 &nbsp;Ca</div>
   <div class="cat" id="cat" data-i18n-tip="tip_cat"></div>
 </div>
@@ -1421,6 +1421,7 @@
       aria_menubtn: "使い方・情報を開く",
       aria_close: "閉じる",
       aria_bohr: "電子の配置図。押すと拡大表示",
+      aria_scene: "元素ベルト",
       tip_meta:
         "左の数字は<b>原子番号</b>。原子の中心（原子核）にある<b>陽子（プラスの粒）の数</b>で、元素ごとに決まっています（水素=1, 炭素=6, 鉄=26…）。番号が大きいほど基本的に重い元素です。<br>右のアルファベットは<b>元素記号</b>。世界共通の略号で、例えば Fe=鉄、Au=金。",
       tip_cat:
@@ -1490,6 +1491,7 @@
       aria_menubtn: "Open help and information",
       aria_close: "Close",
       aria_bohr: "Electron configuration diagram. Tap to enlarge.",
+      aria_scene: "Element Belt",
       tip_meta:
         "The number on the left is the <b>atomic number</b> — the <b>number of protons (positive particles)</b> in the atom's center (nucleus), fixed for each element (hydrogen=1, carbon=6, iron=26…). The higher the number, the heavier the element generally is.<br>The letters on the right are the <b>element symbol</b>, a worldwide abbreviation — for example, Fe=iron, Au=gold.",
       tip_cat:
@@ -1507,7 +1509,7 @@
       tip_shells:
         "Inside an atom, <b>electrons (negative particles)</b> orbit the central nucleus. Electrons fill in layers called <b>shells</b>.<br>These are the numbers of electrons in each shell, counted from the inside as <b>K, L, M, N…</b>",
       tip_orb:
-        "This shows which room (<b>orbital</b>) each electron actually occupies; it is called the <b>electron configuration</b>.<br>Example: <b>1s²</b> means 'two electrons in the room called 1s.' The small superscript number is the electron count, and the color shows the room type: <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, <span class='f'>f</span>.",
+        "This shows which room (<b>orbital</b>) each electron actually occupies; it is called the <b>electron configuration</b>.<br>Example: <b>1s²</b> means 'two electrons in the room called 1s.' The small superscript number is the electron count, and the colour shows the room type: <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, <span class='f'>f</span>.",
       menu_content: `
     <h2 id="menu-title" class="menu-h1">How to use “Element Belt”</h2>
 
@@ -1539,7 +1541,7 @@
       <p class="menu-cite">
         Y. Maeno, K. Hagino, T. Ishiguro,<br />
         “Three related topics on the periodic tables of elements,”<br />
-        <i lang="en">Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
+        <i>Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
         <a href="https://doi.org/10.1007/s10698-020-09387-z" target="_blank" rel="noopener">doi.org/10.1007/s10698-020-09387-z<span aria-label="(opens in a new tab)"> ↗</span></a>
         (open access)
       </p>
@@ -1653,7 +1655,7 @@
     12: "軽い金属で、合金にして自動車やノートPCの筐体に使われます。燃えると強い白い光を出し、花火や照明弾にも使われます。",
     13: "軽くてさびにくい金属。1円玉・アルミ缶・窓枠など身近に広く使われます。地殻に最も多く含まれる金属です。",
     14: "砂や石英の主成分。半導体としてコンピュータのシリコンチップに不可欠です。太陽電池にも使われます。",
-    15: "生き物の骨やDNA、エネルギー物質に欠かせない元素。マッチの発火剤や肥料にも使われます。",
+    15: "生き物の骨やDNA、エネルギー物質に欠かせない元素。マッチの側薬（箱の側面）や肥料にも使われます。",
     16: "火山や温泉でおなじみの黄色い元素。ゴムを丈夫にする（加硫）ほか、硫酸の原料になります。温泉のにおいのもと（硫化水素）などの化合物もつくります。",
     17: "消毒に使う気体で、水道水やプールを清潔に保ちます。食塩の一部でもあります。単体は有毒です。",
     18: "空気に少し含まれる、反応しにくい気体。電球や溶接のときに、対象を守る保護ガスとして使われます。",
@@ -1671,7 +1673,7 @@
     30: "鉄のさびを防ぐメッキ（トタン）に使われます。乾電池の材料や、体に必要な微量元素でもあります。",
     31: "手のひらの熱で溶けるほど融点が低い金属。LEDや高速な半導体に使われます。",
     32: "半導体の材料で、光ファイバーや赤外線カメラに使われます。かつてはトランジスタにも用いられました。",
-    33: "有毒で知られますが、微量は半導体（ガリウムヒ素）に使われます。昔は毒薬に使われた歴史もあります。",
+    33: "有毒で知られますが、半導体（ガリウムヒ素）の材料に使われます。昔は毒薬に使われた歴史もあります。",
     34: "光に反応する性質があり、昔のコピー機や光センサーに使われました。体に微量必要ですが、多いと有毒です。",
     35: "常温で液体という珍しい非金属。赤褐色で刺激臭があります。難燃剤や写真フィルムに使われました。",
     36: "空気にごくわずか含まれる、反応しにくい気体。高性能な電球や一部の照明に使われます。",
@@ -1708,7 +1710,7 @@
     67: "強い磁性をもち、医療用レーザー（結石を砕くなど）に使われます。",
     68: "光ファイバー通信の信号を増幅する材料に使われます。ピンク色の着色にも利用されます。",
     69: "レアメタルの中でも特に希少。携帯用のX線装置やレーザーに使われます。",
-    70: "高精度な原子時計や、鋼の強度を測るセンサーに使われます。",
+    70: "高精度な原子時計や、応力・圧力センサーに使われます。",
     71: "最も重いランタノイド。がんの検査装置（PET）や化学反応の触媒に使われます。",
     72: "熱に強く、半導体の微細な部品や原子炉の制御棒に使われます。",
     73: "小型コンデンサーに使われ、スマホやPCに欠かせません。体になじみやすく、医療材料にも使われます。",
@@ -1721,7 +1723,7 @@
     80: "常温で液体という珍しい金属。かつて体温計や蛍光灯に使われました。有毒で、公害（水俣病）の原因になりました。",
     81: "有毒な金属で、かつて殺鼠剤に使われました。今は赤外線検出器や医療の検査に少量使われます。",
     82: "重くて柔らかい金属。放射線を遮り、車のバッテリーにも使われます。有毒なので用途は減っています。",
-    83: "虹色に輝く結晶が美しい元素。胃腸薬や、鉛の代わりの無害なはんだに使われます。",
+    83: "虹色に輝く結晶が美しい元素。胃腸薬や、鉛の代わりのより安全なはんだに使われます。",
     84: "強い放射能をもつまれな元素。キュリー夫妻が発見しました。ごく少量で強い熱を出します。",
     85: "自然界にごくわずかしか存在しない放射性元素。がん治療への応用が研究されています。",
     86: "放射性の気体で、地中から出て建物にたまることがあります。温泉に含まれることもあります。",
@@ -1759,51 +1761,51 @@
     118: "現在知られている最も重い元素。研究者オガネシアンにちなみます。ごく短い時間しか存在しない人工元素です。",
   };
   const DESC_EN = {
-    1: "The most abundant and lightest element in the universe. It burns to form water and is attracting attention as fuel for fuel cells. The energy that makes stars shine also comes from the nuclear fusion of this element.",
+    1: "The most abundant and lightest element in the universe. It burns to form water and is being developed as a fuel for fuel cells. The energy that makes stars shine also comes from the nuclear fusion of this element.",
     2: "A gas lighter than air that does not burn, used in balloons and airships. Inhaling it makes your voice higher, but voice-change products are mixed with oxygen; inhaling the pure gas is dangerous. It is the second most abundant element in the universe after hydrogen.",
     3: "The lightest metal. Essential for the rechargeable batteries (lithium-ion batteries) in smartphones and electric cars. It is light enough to float on water.",
     4: "A light, hard metal. Because it lets X-rays pass through easily, it is used in precision instruments and aerospace parts. Its dust is toxic, so it must be handled with care.",
     5: "Makes glass heat-resistant (heatproof glass) and is also used in detergents and insecticides. It absorbs neutrons, so it is used to control nuclear reactors.",
     6: "The central element that makes up living things. Both pencil lead (graphite) and diamond are made of the same carbon. It is also present in the air as carbon dioxide.",
-    7: "A gas that makes up about 80% of the air. A main ingredient of fertilizer, it is also used as a filler gas to keep food from oxidizing. Liquid nitrogen is used for ultra-low-temperature cooling.",
+    7: "A gas that makes up about 80% of the air. A main ingredient of fertiliser, it is also used as a filler gas to keep food from oxidising. Liquid nitrogen is used for ultra-low-temperature cooling.",
     8: "A gas essential for breathing that makes up about 20% of the air. It helps things burn. It is also part of water (H₂O).",
     9: "An element with a very strong tendency to react. A small amount is added to toothpaste as a compound (fluoride) to prevent cavities. It is also used in the non-stick coating of frying pans. The pure element is highly poisonous.",
     10: "A gas that barely reacts with anything. It glows red when electricity passes through it, which is the origin of the name 'neon sign.'",
     11: "A component of table salt (sodium chloride). Important for the body's water balance. The pure element is very reactive and reacts violently when placed in water.",
     12: "A light metal used in alloys for car and laptop bodies. It emits a strong white light when it burns, so it is used in fireworks and flares.",
-    13: "A light, rust-resistant metal. Widely used in everyday items such as coins, aluminium cans, and window frames. It is the most abundant metal in the Earth's crust.",
+    13: "A light, rust-resistant metal. Widely used in everyday items such as Japan's one-yen coin, aluminium cans, and window frames. It is the most abundant metal in the Earth's crust.",
     14: "The main component of sand and quartz. As a semiconductor, it is essential for the silicon chips in computers. It is also used in solar cells.",
-    15: "An element essential to the bones, DNA, and energy molecules of living things. It is also used in match heads and fertilizer.",
-    16: "A yellow element familiar from volcanoes and hot springs. It toughens rubber (vulcanization) and is the raw material for sulfuric acid. It also forms compounds such as hydrogen sulfide, the source of the hot-spring smell.",
+    15: "An element essential to the bones, DNA, and energy molecules of living things. It is also used in the striking surface of matchboxes and in fertiliser.",
+    16: "A yellow element familiar from volcanoes and hot springs. It toughens rubber (vulcanisation) and is the raw material for sulfuric acid. It also forms compounds such as hydrogen sulfide, the source of the hot-spring smell.",
     17: "A gas used for disinfection that keeps tap water and pools clean. It is also part of table salt. The pure element is toxic.",
     18: "An unreactive gas present in small amounts in the air. It is used as a shielding gas to protect materials in light bulbs and during welding.",
-    19: "One of the three major elements of fertilizer, essential for plant growth. In the body it helps nerves and muscles work. It is abundant in bananas.",
+    19: "One of the three major elements of fertiliser, essential for plant growth. In the body it helps nerves and muscles work. It is abundant in bananas.",
     20: "The element that builds bones and teeth. Abundant in milk and small fish. It is also the main component of limestone, chalk, and seashells.",
     21: "A rare metal used to make light, strong alloys. Used in high-end bicycle and aircraft parts and in bright stadium lighting.",
     22: "A light, strong, rust-resistant metal. Used in artificial joints, eyeglasses, and aircraft. It is notably resistant to seawater.",
-    23: "Added to steel, it makes it stronger and tougher. Used in tools and springs. It forms vividly colored compounds.",
-    24: "Plating with it gives a shiny, rust-resistant finish. An important component of stainless steel. It is also the source of a ruby's red color.",
+    23: "Added to steel, it makes it stronger and tougher. Used in tools and springs. It forms vividly coloured compounds.",
+    24: "Plating with it gives a shiny, rust-resistant finish. An important component of stainless steel. It is also the source of a ruby's red colour.",
     25: "An element that makes steel hard and tough. Also used in dry-cell batteries. The body needs it in trace amounts.",
-    26: "The most widely used metal. It supports civilization in buildings, machines, and rails. Blood is red thanks to this element, too.",
+    26: "The most widely used metal. It supports civilisation in buildings, machines, and rails. Blood is red thanks to this element, too.",
     27: "Famous for its blue pigment (cobalt blue). Also used in rechargeable batteries and powerful magnets.",
     28: "Rust-resistant, used in plating and coins. Also a material for stainless steel and rechargeable batteries. It is a metal that sticks to magnets.",
-    29: "It conducts electricity well, so it is essential for electrical wires. It is the material of the 10-yen coin. When it corrodes it turns blue-green (patina).",
-    30: "Used in plating that prevents iron from rusting (galvanized steel). It is also a material for dry-cell batteries and a trace element the body needs.",
+    29: "It conducts electricity well, so it is essential for electrical wires. It is the material of Japan's ten-yen coin. When it corrodes it turns blue-green (patina).",
+    30: "Used in plating that prevents iron from rusting (galvanised steel). It is also a material for dry-cell batteries and a trace element the body needs.",
     31: "A metal with a melting point so low it melts in the heat of your palm. Used in LEDs and high-speed semiconductors.",
-    32: "A semiconductor material used in optical fibers and infrared cameras. It was once used in transistors as well.",
-    33: "Known as poisonous, but in tiny amounts it is used in semiconductors (gallium arsenide). It was historically used as a poison.",
+    32: "A semiconductor material used in optical fibres and infrared cameras. It was once used in transistors as well.",
+    33: "Known as poisonous, but in small quantities it is used in semiconductors (gallium arsenide). It was historically used as a poison.",
     34: "It reacts to light and was used in old copiers and light sensors. The body needs a trace of it, but too much is toxic.",
-    35: "A rare nonmetal that is liquid at room temperature. Reddish-brown with a pungent smell. It was used in flame retardants and photographic film.",
+    35: "An unusual nonmetal that is liquid at room temperature. Reddish-brown with a pungent smell. It was used in flame retardants and photographic film.",
     36: "An unreactive gas present in tiny amounts in the air. Used in high-performance light bulbs and some lighting.",
     37: "A very reactive, soft metal. Used in precise atomic clocks and in research.",
-    38: "The element that produces the red color in fireworks. It was once used in the glass of CRT televisions.",
+    38: "The element that produces the red colour in fireworks. It was once used in the glass of CRT televisions.",
     39: "A rare metal used in white LEDs, red phosphors, and lasers. Also used in superconducting materials.",
     40: "A metal resistant to heat and chemicals. Used in nuclear reactor parts and in gem-like zirconia (a diamond-like artificial stone).",
-    41: "Used in superconducting magnets, MRI, and strong alloys. It develops vivid colors, so it is also used in accessories.",
+    41: "Used in superconducting magnets, MRI, and strong alloys. It develops vivid colours, so it is also used in jewellery.",
     42: "An element that makes steel resistant to high temperatures. Used in engines and tools. It is also a trace nutrient that plants need.",
-    43: "An artificial radioactive element that barely exists in nature. Used in medical imaging tests (exams that look inside the body).",
+    43: "An artificial radioactive element that barely exists in nature. Used in medical imaging tests.",
     44: "A hard metal used in electronic parts and as a catalyst for chemical reactions. A small amount strengthens alloys.",
-    45: "Essential as a catalyst that cleans car exhaust. A very expensive metal with a beautiful luster.",
+    45: "Essential as a catalyst that cleans car exhaust. A very expensive metal with a beautiful lustre.",
     46: "Used in exhaust-cleaning catalysts and dental materials. It has the unusual property of absorbing large amounts of hydrogen.",
     47: "The metal that conducts electricity and heat the best. Used in ornaments, tableware, mirrors, and electronic parts. Also known for its antibacterial action.",
     48: "Used in yellow and red pigments and in older rechargeable batteries. It is toxic and caused the pollution disease known as itai-itai disease.",
@@ -1814,46 +1816,46 @@
     53: "Used in gargles and disinfectants. Needed for thyroid function and abundant in seaweed. Japan is a major producer.",
     54: "A brightly glowing gas used in car headlights and projectors. Also used in anesthesia and in the ion engines of spacecraft.",
     55: "The element used to define the length of one second. A soft metal that is extremely reactive.",
-    56: "Used in the contrast agent (barium sulfate) you drink for stomach X-rays. It also produces the green color in fireworks.",
+    56: "Used in the contrast agent (barium sulfate) you drink for stomach X-rays. It also produces the green colour in fireworks.",
     57: "A rare metal used in camera lenses, rechargeable batteries, and catalysts. It heads the group called the lanthanides.",
     58: "Used in abrasives for polishing glass and gems, and in lighter flints. It is a relatively abundant rare metal in the Earth's crust.",
-    59: "Used in powerful magnets and in the tinted glass of welding goggles. Also used for yellow coloring.",
+    59: "Used in powerful magnets and in the tinted glass of welding goggles. Also used for yellow colouring.",
     60: "The material of the world's strongest permanent magnets (neodymium magnets). Essential for motors and speakers.",
     61: "A radioactive rare metal that barely exists in nature. It was once used in luminous paint and small batteries.",
     62: "A material for heat-resistant magnets. Also used as a neutron-absorbing material inside nuclear reactors.",
-    63: "It emits red and blue fluorescence and is used in banknote anti-counterfeiting and TV color.",
+    63: "It emits red and blue fluorescence and is used in banknote anti-counterfeiting and TV colour.",
     64: "Used in the contrast agent for MRI exams. A rare metal that absorbs neutrons well and has unusual magnetic properties.",
     65: "A rare metal used in green phosphors and in special magnetic materials that change shape.",
     66: "Added to make magnets that stay strong even at high temperatures. An important element for hybrid car motors.",
-    67: "Strongly magnetic, used in medical lasers (for example, to break up stones).",
-    68: "Used in materials that amplify signals in optical-fiber communication. Also used for pink coloring.",
+    67: "Strongly magnetic, used in medical lasers (for example, to break up kidney stones).",
+    68: "Used in materials that amplify signals in optical-fibre communication. Also used for pink colouring.",
     69: "Especially rare even among rare metals. Used in portable X-ray devices and lasers.",
-    70: "Used in high-precision atomic clocks and in sensors that measure the strength of steel.",
+    70: "Used in high-precision atomic clocks and in stress and pressure sensors.",
     71: "The heaviest lanthanide. Used in cancer scanners (PET) and as a catalyst for chemical reactions.",
     72: "Heat-resistant, used in tiny semiconductor parts and in nuclear reactor control rods.",
-    73: "Used in small capacitors and essential for smartphones and PCs. Body-friendly, it is also used in medical materials.",
+    73: "Used in small capacitors and essential for smartphones and PCs. It is well tolerated by the body, so it is also used in medical implants.",
     74: "The element with the highest melting point of any metal. It was once used in light-bulb filaments. Also used in cutting tools and weights.",
     75: "A rare metal with a very high melting point. Used in jet-engine parts exposed to high heat.",
-    76: "The densest (heaviest) naturally occurring metal. Very hard, it was used in fountain-pen nibs and the like.",
-    77: "A very hard, corrosion-resistant metal. Used in spark plugs and famous as evidence for the meteorite theory of the dinosaurs' extinction.",
-    78: "A beautiful, rust-free precious metal (platinum). Besides jewelry, it is essential as a catalyst for cleaning exhaust gas.",
+    76: "The densest (heaviest) naturally occurring metal. Very hard, it was used in fountain-pen nibs.",
+    77: "A very hard, corrosion-resistant metal. Used in spark plugs and famous as evidence for the asteroid impact hypothesis of the dinosaurs' extinction.",
+    78: "A beautiful, rust-free precious metal (platinum). Besides jewellery, it is essential as a catalyst for cleaning exhaust gas.",
     79: "A precious metal that never rusts and shines beautifully. Besides decoration and investment, it conducts electricity well and is used in electronic parts.",
-    80: "A rare metal that is liquid at room temperature. It was once used in thermometers and fluorescent lamps. It is toxic and caused the pollution disease known as Minamata disease.",
+    80: "An unusual metal — one of the very few that is liquid at room temperature. It was once used in thermometers and fluorescent lamps. It is toxic and caused the pollution disease known as Minamata disease.",
     81: "A toxic metal once used as rat poison. Today it is used in small amounts in infrared detectors and medical tests.",
     82: "A heavy, soft metal. It blocks radiation and is used in car batteries. Because it is toxic, its uses are decreasing.",
-    83: "An element with beautiful rainbow-colored crystals. Used in stomach medicines and in harmless, lead-free solder.",
+    83: "An element with beautiful rainbow-coloured crystals. Used in stomach medicines and in safer, lead-free solder.",
     84: "A rare element with strong radioactivity, discovered by the Curies. Even a tiny amount gives off strong heat.",
     85: "A radioactive element that exists only in tiny amounts in nature. Its application to cancer treatment is being researched.",
     86: "A radioactive gas that can seep from the ground and collect in buildings. It is sometimes found in hot springs.",
     87: "A very unstable radioactive element that barely exists in nature. Only tiny amounts are made for research.",
     88: "It glows pale blue with strong radioactivity. It was once used in luminous paint but is no longer used because it is dangerous. Discovered by the Curies.",
     89: "A radioactive element that glows pale blue in the dark. Used in research for cancer treatment. It heads the group called the actinides.",
-    90: "Radioactive but relatively stable. It is attracting attention as a next-generation nuclear fuel. It was once used in gas lamps as well.",
-    91: "A rare element with strong radioactivity. It is handled mainly for research.",
+    90: "Radioactive but relatively stable. It is seen as a promising next-generation nuclear fuel. It was once used in gas lamps as well.",
+    91: "A rare element with strong radioactivity. It is handled almost exclusively in research settings.",
     92: "A radioactive element that fuels nuclear power and atomic bombs. It releases great energy through nuclear fission.",
     93: "An artificially made radioactive element. Coming after uranium, it was named after the planet Neptune.",
     94: "A radioactive element made in nuclear reactors. Used as nuclear fuel and as a power source (heat source) for space probes.",
-    95: "An artificial radioactive element. Tiny amounts are used in some smoke detectors (the ionization type).",
+    95: "An artificial radioactive element. Tiny amounts are used in some smoke detectors (the ionisation type).",
     96: "An artificial radioactive element named after the Curies. It gives off strong heat and is used to power space probes.",
     97: "An artificial radioactive element named after the U.S. city of Berkeley. Only tiny amounts can be made, used mainly for research.",
     98: "An artificial element named after the U.S. state of California. It emits many neutrons and is used in research on resource exploration and cancer treatment.",
@@ -1873,8 +1875,8 @@
     112: "An artificial superheavy element named after Copernicus of the heliocentric theory.",
     113: "An element discovered and named by Japan's RIKEN institute. Named after 'Nihon' (Japan), it was the first element to be named in Asia.",
     114: "An artificial superheavy element named after the Russian physicist Flerov.",
-    115: "An artificial superheavy element named after Moscow (the region) of Russia.",
-    116: "An artificial superheavy element named after the U.S. Livermore laboratory.",
+    115: "An artificial superheavy element named after the Moscow region of Russia.",
+    116: "An artificial superheavy element named after the Lawrence Livermore National Laboratory.",
     117: "An artificial superheavy element named after the U.S. state of Tennessee. A new element whose existence was confirmed in the 2010s.",
     118: "The heaviest element currently known, named after the researcher Oganessian. An artificial element that exists for only a very short time.",
   };
