@@ -204,14 +204,17 @@
   /* 右上に置く凡例（枠なし・縦積み） */
   .legend {
     position: fixed;
-    top: 8px;
-    right: 12px;
+    top: 60px; /* メニューボタンの下に配置 */
+    right: 10px;
     z-index: 25;
     display: flex;
     flex-direction: column;
     gap: 4px;
     font-size: 14px;
     color: var(--soft);
+    background: rgba(247, 249, 250, 0.82); /* 帯セルに重なっても読めるよう薄地 */
+    padding: 6px 8px;
+    border-radius: 8px;
   }
   /* 中央帯の価数を左端に（legend と同じ高さ） */
   .collabel {
@@ -350,6 +353,120 @@
     color: var(--soft);
     text-align: center;
   }
+
+  /* ====== ヘッダー右端のメニュー（使い方・引用） ====== */
+  .menu-btn {
+    position: fixed;
+    top: 8px;
+    right: 10px;
+    z-index: 40;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--paper2);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu-btn:hover {
+    background: #fff;
+  }
+  .menu-btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px;
+    background: rgba(21, 32, 41, 0.45);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .menu-overlay[hidden] {
+    display: none;
+  }
+  .menu-card {
+    position: relative;
+    width: min(560px, 100%);
+    background: var(--paper2);
+    color: var(--ink);
+    border-radius: 12px;
+    padding: 24px 24px 28px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .menu-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--soft);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .menu-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+  .menu-close:focus-visible,
+  .menu-card a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .menu-h1 {
+    margin: 2px 44px 14px 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .menu-sec {
+    margin-top: 20px;
+  }
+  .menu-sec h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .menu-sec p {
+    margin: 0 0 8px;
+  }
+  .menu-sec ul {
+    margin: 0;
+    padding-left: 1.2em;
+  }
+  .menu-sec li {
+    margin-bottom: 8px;
+  }
+  .menu-card a {
+    color: var(--focus); /* 青＋下線でリンクと分かる（WCAG 1.4.1） */
+    text-decoration: underline;
+  }
+  .menu-card code {
+    font-family: "Bahnschrift", "DIN Alternate", monospace;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 15px;
+  }
+  .menu-cite {
+    font-size: 15px;
+  }
 </style>
 
 <!-- 全画面の周期表。readout / legend / footer をこの上に重ねる -->
@@ -359,6 +476,21 @@
   </div>
   <div class="centerbox" id="centerbox"></div>
 </div>
+
+<!-- ヘッダー右端のメニュー -->
+<button
+  id="menubtn"
+  class="menu-btn"
+  aria-label="使い方・情報を開く"
+  aria-haspopup="dialog"
+  aria-expanded="false"
+>
+  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+    <circle cx="12" cy="7.6" r="1.4" fill="currentColor" />
+    <rect x="10.8" y="10.6" width="2.4" height="7" rx="1.2" fill="currentColor" />
+  </svg>
+</button>
 
 <div class="readout">
   <div class="jp" id="jp">カルシウム</div>
@@ -385,6 +517,70 @@
     </div>
   </div>
 </footer>
+
+<!-- メニュー本体（使い方・エレメンタッチの引用・ライセンス） -->
+<div
+  id="menu"
+  class="menu-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="menu-title"
+  hidden
+>
+  <div class="menu-card">
+    <button id="menuclose" class="menu-close" aria-label="閉じる">×</button>
+    <h2 id="menu-title" class="menu-h1">「元素の帯」の使い方</h2>
+
+    <section class="menu-sec">
+      <h3>操作方法</h3>
+      <ul>
+        <li><b>横スクロール／ドラッグ／← →キー</b>: 原子番号の順に元素を切り替えます。</li>
+        <li><b>縦スクロール／ドラッグ／↑ ↓キー</b>: 中央の元素と価数（結びつきやすさ）が同じ仲間の中を移動します。</li>
+        <li><b>マスをタップ</b>: その元素を中央へ移動します。</li>
+        <li><b>名前・番号・記号・s/p/d/f・電子殻・電子配置をタップ（PC はマウスを乗せる）</b>: やさしい解説が出ます。</li>
+        <li><b>電子配置の図をタップ</b>: 大きく拡大表示します。</li>
+        <li>URL に <code>?e=Fe</code> や <code>?z=26</code> を付けると、その元素を選んだ状態で開けます。</li>
+      </ul>
+    </section>
+
+    <section class="menu-sec">
+      <h3>この並べ方について（エレメンタッチ）</h3>
+      <p>
+        この周期表の並べ方は、京都大学の<b>前野悦輝</b>氏が考案した立体周期表「<b>エレメンタッチ（ElemenTouch）</b>」に着想を得ています。中央の元素と価数が同じ仲間が、上下にそろって並びます。
+      </p>
+      <p>
+        公式サイト:
+        <a
+          href="https://ss.scphys.kyoto-u.ac.jp/elementouch/"
+          target="_blank"
+          rel="noopener"
+        >エレメンタッチ 公式ページ<span aria-label="（新しいタブで開きます）"> ↗</span></a>
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>論文引用</h3>
+      <p class="menu-cite">
+        Y. Maeno, K. Hagino, T. Ishiguro,<br />
+        “Three related topics on the periodic tables of elements,”<br />
+        <i lang="en">Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
+        <a
+          href="https://doi.org/10.1007/s10698-020-09387-z"
+          target="_blank"
+          rel="noopener"
+        >doi.org/10.1007/s10698-020-09387-z<span aria-label="（新しいタブで開きます）"> ↗</span></a>
+        （オープンアクセス）
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>ライセンス・クレジット</h3>
+      <p>
+        本アプリ「元素の帯」は、教育ブランド <b>EDUYN</b> が<b>無償</b>で提供しています（コードは <b>CC BY 4.0</b>）。並べ方の着想元であるエレメンタッチの考案者・前野悦輝氏の了承のもと、上記論文を引用しています。商用利用の際は別途エレメンタッチのエージェントへの相談が必要です。
+      </p>
+    </section>
+  </div>
+</div>
 
 <!-- 使い回す1個のカスタムツールチップ本体 -->
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
@@ -1339,5 +1535,51 @@
     addEventListener("keydown", (e) => e.key === "Escape" && hide());
     addEventListener("scroll", hide, true); // スクロールしたら閉じる
     addEventListener("resize", hide);
+  })();
+
+  /* ====================== 9. メニュー（使い方・引用） ====================== */
+  (function () {
+    const btn = document.getElementById("menubtn"),
+      modal = document.getElementById("menu"),
+      closeBtn = document.getElementById("menuclose");
+    let lastFocus = null;
+    function open() {
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      closeBtn.focus();
+      document.addEventListener("keydown", onKey);
+    }
+    function close() {
+      modal.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+      document.removeEventListener("keydown", onKey);
+      if (lastFocus) lastFocus.focus();
+    }
+    /* Esc で閉じる／Tab はモーダル内に閉じ込める（フォーカストラップ） */
+    function onKey(e) {
+      if (e.key === "Escape") {
+        close();
+        return;
+      }
+      if (e.key === "Tab") {
+        const f = modal.querySelectorAll("button, a[href]");
+        if (!f.length) return;
+        const first = f[0],
+          last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    }
+    btn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) close(); // 背景（オーバーレイ）タップで閉じる
+    });
   })();
 </script>
