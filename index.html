@@ -325,6 +325,10 @@
     transform: none;
     visibility: visible;
   }
+  /* 中央の価数ラベル（#collabel）の解説は情報量が多く重要なので大きめに */
+  .tip.tip-lg {
+    font-size: 18px;
+  }
   .tip b {
     color: var(--green); /* 見出しは深緑 */
   }
@@ -541,7 +545,7 @@
 </div>
 
 <!-- 中央（ピンク帯）の元素の価数列 -->
-<div class="collabel" id="collabel" data-i18n-tip="tip_collabel"></div>
+<div class="collabel" id="collabel"></div>
 
 <footer class="footer" id="footer">
   <div class="config">
@@ -1142,12 +1146,30 @@
   /* ====================== 6. スクロール → 表示 ====================== */
   const AMP = 90; // 螺旋の上下動（左端で上・右端で下）
   let cur = -1;
+  /* 中央の価数ラベルに応じた解説（eleCol の種別で COLTIP を引く） */
+  function collabelDesc(z) {
+    const c = eleCol(z);
+    let key;
+    if (/^v[1-8]$/.test(c)) key = c;
+    else if (c[0] === "d") key = "d";
+    else key = "f";
+    const d = COLTIP[LANG] || COLTIP.ja;
+    return d[key] || "";
+  }
+
   function readoutFor(i) {
     const e = EL[i];
     document.getElementById("jp").textContent = elName(e);
     document.getElementById("meta").innerHTML = `${e.z} &nbsp;${e.s}`;
     document.getElementById("cat").textContent = catText(e.z, e.b);
-    document.getElementById("collabel").textContent = colLabel(e.z);
+    /* 価数ラベルは元素ごとに変わるため、data-tip も毎回動的に組み立てる
+       （定型文 + その価数列固有の解説）。言語切替時も setLang→readoutFor で追従 */
+    const cl = document.getElementById("collabel");
+    cl.textContent = colLabel(e.z);
+    cl.setAttribute(
+      "data-tip",
+      t("tip_collabel") + "<br><br>" + collabelDesc(e.z)
+    );
   }
   function update() {
     layoutFisheye();
@@ -1408,6 +1430,35 @@
     return idx >= 0 && idx < EL.length ? idx : 19;
   }
 
+  /* 中央の価数ラベル（#collabel）ごとの解説。定型文 tip_collabel の後に連結する。
+     キー: v1..v8（価数/貴ガス）, d（d ブロック中間=遷移金属）, f（f ブロック中間） */
+  const COLTIP = {
+    ja: {
+      v1: "<b>1価</b>の列。電子を1個放して<b>+1のイオン</b>になりやすい仲間です。水素とアルカリ金属（リチウム・ナトリウム・カリウムなど）が並びます。水や食塩に関わり、反応性が高いものが多いです。",
+      v2: "<b>2価</b>の列。電子を2個放して<b>+2のイオン</b>になりやすい仲間です。アルカリ土類金属（マグネシウム・カルシウム・バリウムなど）と亜鉛の仲間が並びます。骨・貝殻や花火の色でおなじみです。",
+      v3: "<b>3価</b>の列。<b>+3のイオン</b>になりやすい仲間です。ホウ素・アルミニウムのほか、スカンジウム・イットリウム・ランタンなどが並びます。",
+      v4: "<b>4価</b>の列。<b>4本の手</b>で結びつきやすい仲間です。炭素・ケイ素のほか、チタン・ジルコニウム、セリウム・トリウムが並びます。半導体や生命の骨格に関わります。",
+      v5: "<b>5価</b>をとりやすい列。窒素・リンのほか、バナジウムの仲間が並びます。肥料・DNA・電池材料などに関わります。",
+      v6: "<b>6価</b>をとりやすい列。酸素・硫黄のほか、クロムの仲間が並びます。呼吸・硫酸・めっきなどに関わります。",
+      v7: "<b>7価</b>までとりうる列。フッ素・塩素などのハロゲンと、マンガンの仲間が並びます。消毒・殺菌でおなじみの、反応性の高い仲間です。",
+      v8: "<b>貴ガス</b>の列。いちばん外側の電子が満たされていて、ほかとほとんど結びつかない（価数0）安定な気体です。ヘリウム・ネオン・アルゴンなど。",
+      d: "<b>d ブロックの中間</b>の列（遷移金属）。複数の価数をとれるのが特徴で、鉄・銅・クロムのように条件でイオンの価数が変わります。触媒や色の変化に関わります。",
+      f: "<b>f ブロックの中間</b>の列（ランタノイド・アクチノイド）。多くは3価を中心に近い性質が並び、強力な磁石やレアメタル、原子力に関わります。",
+    },
+    en: {
+      v1: "The <b>+1 (monovalent)</b> column. These elements readily lose one electron to form <b>+1 ions</b>. Hydrogen and the alkali metals (lithium, sodium, potassium…) line up here — reactive elements found in water and salt.",
+      v2: "The <b>+2 (divalent)</b> column. These readily lose two electrons to form <b>+2 ions</b>. The alkaline earth metals (magnesium, calcium, barium…) and the zinc group line up here — familiar from bones, seashells, and firework colours.",
+      v3: "The <b>+3 (trivalent)</b> column. These readily form <b>+3 ions</b>. Boron and aluminium, plus scandium, yttrium, and lanthanum, line up here.",
+      v4: "The <b>+4 (tetravalent)</b> column. These tend to bond with <b>four bonds</b>. Carbon and silicon, plus titanium, zirconium, cerium, and thorium — central to semiconductors and the framework of life.",
+      v5: "The column that readily reaches <b>+5</b>. Nitrogen and phosphorus, plus the vanadium group — linked to fertiliser, DNA, and battery materials.",
+      v6: "The column that readily reaches <b>+6</b>. Oxygen and sulfur, plus the chromium group — linked to breathing, sulfuric acid, and plating.",
+      v7: "The column that can reach <b>+7</b>. The halogens (fluorine, chlorine…) and the manganese group — highly reactive elements familiar from disinfection.",
+      v8: "The <b>noble gas</b> column. Their outermost electrons are full, so they barely bond with anything (valence 0) — stable gases such as helium, neon, and argon.",
+      d: "The <b>middle of the d block</b> (transition metals). They can take several valences, so elements like iron, copper, and chromium change ionic charge depending on conditions — linked to catalysts and colour changes.",
+      f: "The <b>middle of the f block</b> (lanthanides and actinides). Most share similar properties centred on the +3 state, and are linked to powerful magnets, rare metals, and nuclear power.",
+    },
+  };
+
   /* ====================== i18n 辞書と適用 ====================== */
   const UISTR = {
     ja: {
@@ -1431,7 +1482,7 @@
       tip_block_f:
         "<b class='f'>f ブロック</b><br>さらに内側の <b>f 軌道</b>という部屋に電子が入る仲間。<br><b>ランタノイド・アクチノイド</b>と呼ばれ、強力な磁石やレアメタル、原子力に使われる少し珍しい金属たちです。",
       tip_collabel:
-        "このアプリ独自の並べ方です。<br>ふつうの周期表と違い、中央の元素と<b>性質がよく似た仲間</b>（他の原子との結びつきやすさ＝<b>価数</b>が同じ仲間）を、上下にそろえて表示しています。<br>上へ行くほど軽く、下へ行くほど重い元素。縦にスクロール（またはドラッグ）すると仲間を行き来できます。",
+        "中央の元素と<b>性質がよく似た仲間</b>（他の原子との結びつきやすさ＝<b>価数</b>が同じ仲間）を、上下にそろえて表示しています。<br>上へ行くほど軽く、下へ行くほど重い元素。縦にスクロール（またはドラッグ）すると仲間を行き来できます。",
       tip_shells:
         "原子の中では、中心の原子核のまわりを<b>電子（マイナスの粒）</b>が回っています。電子は<b>殻（から）</b>という層に分かれて入ります。<br>ここは各層に入っている電子の数。内側から <b>K・L・M・N…</b> の順に数えます。",
       tip_orb:
@@ -1501,7 +1552,7 @@
       tip_block_f:
         "<b class='f'>f block</b><br>Elements whose electrons enter the room even further inside, called the <b>f orbital</b>.<br>Called the <b>lanthanides and actinides</b>, these are somewhat unusual metals used in powerful magnets, rare metals, and nuclear power.",
       tip_collabel:
-        "This is this app's own arrangement.<br>Unlike an ordinary periodic table, it lines up above and below the central element the <b>elements with very similar properties</b> (those with the same <b>valence</b> — the same tendency to bond with other atoms).<br>The higher up, the lighter the element; the lower down, the heavier. Scroll (or drag) vertically to move among them.",
+        "It lines up above and below the central element the <b>elements with very similar properties</b> (those with the same <b>valence</b> — the same tendency to bond with other atoms).<br>The higher up, the lighter the element; the lower down, the heavier. Scroll (or drag) vertically to move among them.",
       tip_shells:
         "Inside an atom, <b>electrons (negative particles)</b> orbit the central nucleus. Electrons fill in layers called <b>shells</b>.<br>These are the numbers of electrons in each shell, counted from the inside as <b>K, L, M, N…</b>",
       tip_orb:
@@ -1899,6 +1950,7 @@
     function show(el) {
       curEl = el;
       tip.innerHTML = contentFor(el);
+      tip.classList.toggle("tip-lg", el.id === "collabel"); // 価数解説のみ大きく
       tip.classList.add("show");
       tip.setAttribute("aria-hidden", "false");
       const r = el.getBoundingClientRect(),
