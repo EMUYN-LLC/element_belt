@@ -467,6 +467,40 @@
   .menu-cite {
     font-size: 15px;
   }
+
+  /* 言語切替 UI（メニュー内） */
+  .menu-lang {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 2px 44px 8px 0;
+  }
+  .menu-lang-h {
+    font-size: 14px;
+    color: var(--soft);
+  }
+  .menu-lang-btn {
+    font-size: 15px;
+    padding: 4px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .menu-lang-btn:hover {
+    background: #fff;
+  }
+  .menu-lang-btn.active {
+    background: var(--green);
+    color: #fff;
+    border-color: var(--green);
+  }
+  .menu-lang-btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
 </style>
 
 <!-- 全画面の周期表。readout / legend / footer をこの上に重ねる -->
@@ -482,6 +516,7 @@
   id="menubtn"
   class="menu-btn"
   aria-label="使い方・情報を開く"
+  data-i18n-aria="aria_menubtn"
   aria-haspopup="dialog"
   aria-expanded="false"
 >
@@ -494,26 +529,26 @@
 
 <div class="readout">
   <div class="jp" id="jp">カルシウム</div>
-  <div class="meta num" id="meta" data-tip="左の数字は<b>原子番号</b>。原子の中心（原子核）にある<b>陽子（プラスの粒）の数</b>で、元素ごとに決まっています（水素=1, 炭素=6, 鉄=26…）。番号が大きいほど基本的に重い元素です。<br>右のアルファベットは<b>元素記号</b>。世界共通の略号で、例えば Fe=鉄、Au=金。">20 &nbsp;Ca</div>
-  <div class="cat" id="cat" data-tip="この元素がどんな仲間かを示します。<br>元素は大きく <b>金属</b>（電気をよく通し、みがくと光る）と<b>非金属</b>に分けられ、さらに電子の入り方で <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> の<b>ブロック</b>に分類されます。"></div>
+  <div class="meta num" id="meta" data-i18n-tip="tip_meta">20 &nbsp;Ca</div>
+  <div class="cat" id="cat" data-i18n-tip="tip_cat"></div>
 </div>
 
 <div class="legend" id="legend">
-  <span data-tip="<b class='s'>s ブロック</b><br>元素は電子の入り方で4つの仲間（ブロック）に分かれます。これはその一つ。<br>いちばん外側の <b>s 軌道</b>という部屋に電子が入る仲間で、水素・ナトリウム・カルシウムなど。水や食塩にも含まれる、身近で反応しやすい元素が多い。"><i style="background: var(--s-bg); border-color: var(--s)"></i>s</span>
-  <span data-tip="<b class='p'>p ブロック</b><br>外側の <b>p 軌道</b>という部屋に電子が入る仲間。<br>炭素・窒素・酸素など生き物をつくる元素や、塩素、ネオンなどの気体を含みます。金属でないものが多いグループ。"><i style="background: var(--p-bg); border-color: var(--p)"></i>p</span>
-  <span data-tip="<b class='d'>d ブロック</b><br>ひとつ内側の <b>d 軌道</b>という部屋に電子が入る仲間で、<b>遷移金属</b>と呼ばれます。<br>鉄・銅・金・銀など、道具や機械・アクセサリーでおなじみの金属が集まっています。"><i style="background: var(--d-bg); border-color: var(--d)"></i>d</span>
-  <span data-tip="<b class='f'>f ブロック</b><br>さらに内側の <b>f 軌道</b>という部屋に電子が入る仲間。<br><b>ランタノイド・アクチノイド</b>と呼ばれ、強力な磁石やレアメタル、原子力に使われる少し珍しい金属たちです。"><i style="background: var(--f-bg); border-color: var(--f)"></i>f</span>
+  <span data-i18n-tip="tip_block_s"><i style="background: var(--s-bg); border-color: var(--s)"></i>s</span>
+  <span data-i18n-tip="tip_block_p"><i style="background: var(--p-bg); border-color: var(--p)"></i>p</span>
+  <span data-i18n-tip="tip_block_d"><i style="background: var(--d-bg); border-color: var(--d)"></i>d</span>
+  <span data-i18n-tip="tip_block_f"><i style="background: var(--f-bg); border-color: var(--f)"></i>f</span>
 </div>
 
 <!-- 中央（ピンク帯）の元素の価数列 -->
-<div class="collabel" id="collabel" data-tip="このアプリ独自の並べ方です。<br>ふつうの周期表と違い、中央の元素と<b>性質がよく似た仲間</b>（他の原子との結びつきやすさ＝<b>価数</b>が同じ仲間）を、上下にそろえて表示しています。<br>上へ行くほど軽く、下へ行くほど重い元素。縦にスクロール（またはドラッグ）すると仲間を行き来できます。"></div>
+<div class="collabel" id="collabel" data-i18n-tip="tip_collabel"></div>
 
 <footer class="footer" id="footer">
   <div class="config">
-    <svg id="bohr" viewBox="0 0 200 200" aria-label="電子の配置図。押すと拡大表示"></svg>
+    <svg id="bohr" viewBox="0 0 200 200" aria-label="電子の配置図。押すと拡大表示" data-i18n-aria="aria_bohr"></svg>
     <div class="conf-text">
-      <div class="shells num" id="shells" data-tip="原子の中では、中心の原子核のまわりを<b>電子（マイナスの粒）</b>が回っています。電子は<b>殻（から）</b>という層に分かれて入ります。<br>ここは各層に入っている電子の数。内側から <b>K・L・M・N…</b> の順に数えます。"></div>
-      <div class="orb num" id="orb" data-tip="電子が実際にどの部屋（<b>軌道</b>）に入っているかを表したもので、<b>電子配置</b>といいます。<br>例: <b>1s²</b> は『1s という部屋に電子が 2 個』の意味。右肩の小さな数字が電子の数、色は <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> という部屋の種類を表します。"></div>
+      <div class="shells num" id="shells" data-i18n-tip="tip_shells"></div>
+      <div class="orb num" id="orb" data-i18n-tip="tip_orb"></div>
     </div>
   </div>
 </footer>
@@ -528,57 +563,18 @@
   hidden
 >
   <div class="menu-card">
-    <button id="menuclose" class="menu-close" aria-label="閉じる">×</button>
-    <h2 id="menu-title" class="menu-h1">「元素ベルト」の使い方</h2>
+    <button
+      id="menuclose"
+      class="menu-close"
+      aria-label="閉じる"
+      data-i18n-aria="aria_close"
+    >×</button>
 
-    <section class="menu-sec">
-      <h3>操作方法</h3>
-      <ul>
-        <li><b>横スクロール／ドラッグ／← →キー</b>: 原子番号の順に元素を切り替えます。</li>
-        <li><b>縦スクロール／ドラッグ／↑ ↓キー</b>: 中央の元素と価数（結びつきやすさ）が同じ仲間の中を移動します。</li>
-        <li><b>マスをタップ</b>: その元素を中央へ移動します。</li>
-        <li><b>名前・番号・記号・s/p/d/f・電子殻・電子配置をタップ（PC はマウスを乗せる）</b>: やさしい解説が出ます。</li>
-        <li><b>電子配置の図をタップ</b>: 大きく拡大表示します。</li>
-        <li>URL に <code>?e=Fe</code> や <code>?z=26</code> を付けると、その元素を選んだ状態で開けます。</li>
-      </ul>
-    </section>
+    <!-- 言語切替（起動時に JS が中身を生成） -->
+    <div class="menu-lang" id="menulang"></div>
 
-    <section class="menu-sec">
-      <h3>この並べ方について（エレメンタッチ）</h3>
-      <p>
-        この周期表の並べ方は、京都大学の<b>前野悦輝</b>氏が考案した立体周期表「<b>エレメンタッチ（ElemenTouch）</b>」に着想を得ています。中央の元素と価数が同じ仲間が、上下にそろって並びます。
-      </p>
-      <p>
-        公式サイト:
-        <a
-          href="https://ss.scphys.kyoto-u.ac.jp/elementouch/"
-          target="_blank"
-          rel="noopener"
-        >エレメンタッチ 公式ページ<span aria-label="（新しいタブで開きます）"> ↗</span></a>
-      </p>
-    </section>
-
-    <section class="menu-sec">
-      <h3>論文引用</h3>
-      <p class="menu-cite">
-        Y. Maeno, K. Hagino, T. Ishiguro,<br />
-        “Three related topics on the periodic tables of elements,”<br />
-        <i lang="en">Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
-        <a
-          href="https://doi.org/10.1007/s10698-020-09387-z"
-          target="_blank"
-          rel="noopener"
-        >doi.org/10.1007/s10698-020-09387-z<span aria-label="（新しいタブで開きます）"> ↗</span></a>
-        （オープンアクセス）
-      </p>
-    </section>
-
-    <section class="menu-sec">
-      <h3>ライセンス・クレジット</h3>
-      <p>
-        本アプリ「元素ベルト」は、教育ブランド <b>EDUYN</b> が<b>無償</b>で提供しています（コードは <b>CC BY 4.0</b>）。並べ方の着想元であるエレメンタッチの考案者・前野悦輝氏の了承のもと、上記論文を引用しています。商用利用の際は別途エレメンタッチのエージェントへの相談が必要です。
-      </p>
-    </section>
+    <!-- 本文（使い方・引用・ライセンス）。言語で innerHTML を差し替える -->
+    <div id="menu-content" data-i18n-html="menu_content"></div>
   </div>
 </div>
 
@@ -586,11 +582,49 @@
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
 
 <script>
+  /* ====================== 0. 多言語 (i18n) ====================== */
+  /* 言語判定の優先順位: ?lang= > URL パス(/ja /en) > localStorage > ブラウザ言語 > 既定 ja */
+  function detectLang() {
+    const q = new URLSearchParams(location.search).get("lang");
+    if (q === "ja" || q === "en") return q;
+    const m = location.pathname.match(/\/(ja|en)\/?$/);
+    if (m) return m[1];
+    let saved = null;
+    try {
+      saved = localStorage.getItem("eb_lang");
+    } catch (e) {}
+    if (saved === "ja" || saved === "en") return saved;
+    return (navigator.language || "").toLowerCase().startsWith("en")
+      ? "en"
+      : "ja";
+  }
+  let LANG = detectLang();
+  /* UI 文言を引く。辞書 UISTR は下部で定義（関数内参照なので実行時に解決される）。
+     見つからなければ日本語 → キー名の順にフォールバック */
+  const t = (k) => {
+    const d = UISTR[LANG] || {};
+    return d[k] != null ? d[k] : UISTR.ja[k] != null ? UISTR.ja[k] : k;
+  };
+  /* 元素名（言語別）。EL は英名 en を持つ */
+  const elName = (e) => (LANG === "en" ? e.en : e.j);
+  /* 「名前（記号）」表記。言語で括弧を切替 */
+  const nameSym = (e) =>
+    LANG === "en" ? `${e.en} (${e.s})` : `${e.j}（${e.s}）`;
+  /* 元素説明（言語別）。DESC は {ja:{...}, en:{...}} */
+  const desc = (z) => {
+    const d = DESC[LANG] || DESC.ja;
+    return d[z] || DESC.ja[z] || "";
+  };
+
   /* ====================== 1. 元素データ ====================== */
   const RAW = `H 水素|He ヘリウム|Li リチウム|Be ベリリウム|B ホウ素|C 炭素|N 窒素|O 酸素|F フッ素|Ne ネオン|Na ナトリウム|Mg マグネシウム|Al アルミニウム|Si ケイ素|P リン|S 硫黄|Cl 塩素|Ar アルゴン|K カリウム|Ca カルシウム|Sc スカンジウム|Ti チタン|V バナジウム|Cr クロム|Mn マンガン|Fe 鉄|Co コバルト|Ni ニッケル|Cu 銅|Zn 亜鉛|Ga ガリウム|Ge ゲルマニウム|As ヒ素|Se セレン|Br 臭素|Kr クリプトン|Rb ルビジウム|Sr ストロンチウム|Y イットリウム|Zr ジルコニウム|Nb ニオブ|Mo モリブデン|Tc テクネチウム|Ru ルテニウム|Rh ロジウム|Pd パラジウム|Ag 銀|Cd カドミウム|In インジウム|Sn スズ|Sb アンチモン|Te テルル|I ヨウ素|Xe キセノン|Cs セシウム|Ba バリウム|La ランタン|Ce セリウム|Pr プラセオジム|Nd ネオジム|Pm プロメチウム|Sm サマリウム|Eu ユウロピウム|Gd ガドリニウム|Tb テルビウム|Dy ジスプロシウム|Ho ホルミウム|Er エルビウム|Tm ツリウム|Yb イッテルビウム|Lu ルテチウム|Hf ハフニウム|Ta タンタル|W タングステン|Re レニウム|Os オスミウム|Ir イリジウム|Pt 白金|Au 金|Hg 水銀|Tl タリウム|Pb 鉛|Bi ビスマス|Po ポロニウム|At アスタチン|Rn ラドン|Fr フランシウム|Ra ラジウム|Ac アクチニウム|Th トリウム|Pa プロトアクチニウム|U ウラン|Np ネプツニウム|Pu プルトニウム|Am アメリシウム|Cm キュリウム|Bk バークリウム|Cf カリホルニウム|Es アインスタイニウム|Fm フェルミウム|Md メンデレビウム|No ノーベリウム|Lr ローレンシウム|Rf ラザホージウム|Db ドブニウム|Sg シーボーギウム|Bh ボーリウム|Hs ハッシウム|Mt マイトネリウム|Ds ダームスタチウム|Rg レントゲニウム|Cn コペルニシウム|Nh ニホニウム|Fl フレロビウム|Mc モスコビウム|Lv リバモリウム|Ts テネシン|Og オガネソン`;
+  /* 元素の英名（原子番号順・全118）。RAW（記号・和名）と対にする */
+  const EN = `Hydrogen|Helium|Lithium|Beryllium|Boron|Carbon|Nitrogen|Oxygen|Fluorine|Neon|Sodium|Magnesium|Aluminium|Silicon|Phosphorus|Sulfur|Chlorine|Argon|Potassium|Calcium|Scandium|Titanium|Vanadium|Chromium|Manganese|Iron|Cobalt|Nickel|Copper|Zinc|Gallium|Germanium|Arsenic|Selenium|Bromine|Krypton|Rubidium|Strontium|Yttrium|Zirconium|Niobium|Molybdenum|Technetium|Ruthenium|Rhodium|Palladium|Silver|Cadmium|Indium|Tin|Antimony|Tellurium|Iodine|Xenon|Caesium|Barium|Lanthanum|Cerium|Praseodymium|Neodymium|Promethium|Samarium|Europium|Gadolinium|Terbium|Dysprosium|Holmium|Erbium|Thulium|Ytterbium|Lutetium|Hafnium|Tantalum|Tungsten|Rhenium|Osmium|Iridium|Platinum|Gold|Mercury|Thallium|Lead|Bismuth|Polonium|Astatine|Radon|Francium|Radium|Actinium|Thorium|Protactinium|Uranium|Neptunium|Plutonium|Americium|Curium|Berkelium|Californium|Einsteinium|Fermium|Mendelevium|Nobelium|Lawrencium|Rutherfordium|Dubnium|Seaborgium|Bohrium|Hassium|Meitnerium|Darmstadtium|Roentgenium|Copernicium|Nihonium|Flerovium|Moscovium|Livermorium|Tennessine|Oganesson`.split(
+    "|"
+  );
   const EL = RAW.split("|").map((t, i) => {
     const k = t.indexOf(" ");
-    return { z: i + 1, s: t.slice(0, k), j: t.slice(k + 1) };
+    return { z: i + 1, s: t.slice(0, k), j: t.slice(k + 1), en: EN[i] };
   });
 
   /* ====================== 2. 価数列モデル ====================== */
@@ -660,18 +694,34 @@
   });
 
   const VLABEL = {
-    v1: "1価",
-    v2: "2価",
-    v3: "3価",
-    v4: "4価",
-    v5: "5価",
-    v6: "6価",
-    v7: "7価",
-    v8: "貴ガス",
+    ja: {
+      v1: "1価",
+      v2: "2価",
+      v3: "3価",
+      v4: "4価",
+      v5: "5価",
+      v6: "6価",
+      v7: "7価",
+      v8: "貴ガス",
+    },
+    en: {
+      v1: "Valence 1",
+      v2: "Valence 2",
+      v3: "Valence 3",
+      v4: "Valence 4",
+      v5: "Valence 5",
+      v6: "Valence 6",
+      v7: "Valence 7",
+      v8: "Noble gas",
+    },
   };
   const colLabel = (z) => {
     const c = eleCol(z);
-    return VLABEL[c] || (c[0] === "d" ? `d ${c.slice(1)}族` : "f 中間");
+    const vl = VLABEL[LANG] || VLABEL.ja;
+    if (vl[c]) return vl[c];
+    if (c[0] === "d")
+      return LANG === "en" ? `d-group ${c.slice(1)}` : `d ${c.slice(1)}族`;
+    return LANG === "en" ? "f (mid)" : "f 中間";
   };
 
   /* ====================== 3. 分類 ====================== */
@@ -756,6 +806,28 @@
       for (let z = a; z <= b; z++) CATOF[z] = n;
     })
   );
+  /* 分類名の英訳（CATOF は和名をキーに持つ） */
+  const CATNAME_EN = {
+    アルカリ金属: "Alkali metals",
+    アルカリ土類金属: "Alkaline earth metals",
+    遷移金属: "Transition metals",
+    ポスト遷移金属: "Post-transition metals",
+    半金属: "Metalloids",
+    反応性非金属: "Reactive nonmetals",
+    貴ガス: "Noble gases",
+    ランタノイド: "Lanthanides",
+    アクチノイド: "Actinides",
+    不明: "Unknown",
+  };
+  const catName = (z) => {
+    const n = CATOF[z] || "";
+    return LANG === "en" ? CATNAME_EN[n] || n : n;
+  };
+  /* 「分類 ・ ◯ブロック」表示（言語で区切り・語順を切替） */
+  const catText = (z, b) =>
+    LANG === "en"
+      ? `${catName(z)} · ${b} block`
+      : `${catName(z)} ・ ${b} ブロック`;
 
   /* ====================== 4. 帯の組み立て（らせん高さ配置） ====================== */
   const CW = 48; // マス幅（横の間隔）
@@ -1076,11 +1148,9 @@
   let cur = -1;
   function readoutFor(i) {
     const e = EL[i];
-    document.getElementById("jp").textContent = e.j;
+    document.getElementById("jp").textContent = elName(e);
     document.getElementById("meta").innerHTML = `${e.z} &nbsp;${e.s}`;
-    document.getElementById("cat").textContent = `${CATOF[e.z] || ""} ・ ${
-      e.b
-    } ブロック`;
+    document.getElementById("cat").textContent = catText(e.z, e.b);
     document.getElementById("collabel").textContent = colLabel(e.z);
   }
   function update() {
@@ -1342,13 +1412,233 @@
     return idx >= 0 && idx < EL.length ? idx : 19;
   }
 
+  /* ====================== i18n 辞書と適用 ====================== */
+  const UISTR = {
+    ja: {
+      title: "元素ベルト｜Element Belt",
+      langHeading: "言語 / Language",
+      bohrCap: "電子の配置図",
+      aria_menubtn: "使い方・情報を開く",
+      aria_close: "閉じる",
+      aria_bohr: "電子の配置図。押すと拡大表示",
+      tip_meta:
+        "左の数字は<b>原子番号</b>。原子の中心（原子核）にある<b>陽子（プラスの粒）の数</b>で、元素ごとに決まっています（水素=1, 炭素=6, 鉄=26…）。番号が大きいほど基本的に重い元素です。<br>右のアルファベットは<b>元素記号</b>。世界共通の略号で、例えば Fe=鉄、Au=金。",
+      tip_cat:
+        "この元素がどんな仲間かを示します。<br>元素は大きく <b>金属</b>（電気をよく通し、みがくと光る）と<b>非金属</b>に分けられ、さらに電子の入り方で <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> の<b>ブロック</b>に分類されます。",
+      tip_block_s:
+        "<b class='s'>s ブロック</b><br>元素は電子の入り方で4つの仲間（ブロック）に分かれます。これはその一つ。<br>いちばん外側の <b>s 軌道</b>という部屋に電子が入る仲間で、水素・ナトリウム・カルシウムなど。水や食塩にも含まれる、身近で反応しやすい元素が多い。",
+      tip_block_p:
+        "<b class='p'>p ブロック</b><br>外側の <b>p 軌道</b>という部屋に電子が入る仲間。<br>炭素・窒素・酸素など生き物をつくる元素や、塩素、ネオンなどの気体を含みます。金属でないものが多いグループ。",
+      tip_block_d:
+        "<b class='d'>d ブロック</b><br>ひとつ内側の <b>d 軌道</b>という部屋に電子が入る仲間で、<b>遷移金属</b>と呼ばれます。<br>鉄・銅・金・銀など、道具や機械・アクセサリーでおなじみの金属が集まっています。",
+      tip_block_f:
+        "<b class='f'>f ブロック</b><br>さらに内側の <b>f 軌道</b>という部屋に電子が入る仲間。<br><b>ランタノイド・アクチノイド</b>と呼ばれ、強力な磁石やレアメタル、原子力に使われる少し珍しい金属たちです。",
+      tip_collabel:
+        "このアプリ独自の並べ方です。<br>ふつうの周期表と違い、中央の元素と<b>性質がよく似た仲間</b>（他の原子との結びつきやすさ＝<b>価数</b>が同じ仲間）を、上下にそろえて表示しています。<br>上へ行くほど軽く、下へ行くほど重い元素。縦にスクロール（またはドラッグ）すると仲間を行き来できます。",
+      tip_shells:
+        "原子の中では、中心の原子核のまわりを<b>電子（マイナスの粒）</b>が回っています。電子は<b>殻（から）</b>という層に分かれて入ります。<br>ここは各層に入っている電子の数。内側から <b>K・L・M・N…</b> の順に数えます。",
+      tip_orb:
+        "電子が実際にどの部屋（<b>軌道</b>）に入っているかを表したもので、<b>電子配置</b>といいます。<br>例: <b>1s²</b> は『1s という部屋に電子が 2 個』の意味。右肩の小さな数字が電子の数、色は <span class='s'>s</span>・<span class='p'>p</span>・<span class='d'>d</span>・<span class='f'>f</span> という部屋の種類を表します。",
+      menu_content: `
+    <h2 id="menu-title" class="menu-h1">「元素ベルト」の使い方</h2>
+
+    <section class="menu-sec">
+      <h3>操作方法</h3>
+      <ul>
+        <li><b>横スクロール／ドラッグ／← →キー</b>: 原子番号の順に元素を切り替えます。</li>
+        <li><b>縦スクロール／ドラッグ／↑ ↓キー</b>: 中央の元素と価数（結びつきやすさ）が同じ仲間の中を移動します。</li>
+        <li><b>マスをタップ</b>: その元素を中央へ移動します。</li>
+        <li><b>名前・番号・記号・s/p/d/f・電子殻・電子配置をタップ（PC はマウスを乗せる）</b>: やさしい解説が出ます。</li>
+        <li><b>電子配置の図をタップ</b>: 大きく拡大表示します。</li>
+        <li>URL に <code>?e=Fe</code> や <code>?z=26</code> を付けると、その元素を選んだ状態で開けます。</li>
+      </ul>
+    </section>
+
+    <section class="menu-sec">
+      <h3>この並べ方について（エレメンタッチ）</h3>
+      <p>
+        この周期表の並べ方は、京都大学の<b>前野悦輝</b>氏が考案した立体周期表「<b>エレメンタッチ（ElemenTouch）</b>」に着想を得ています。中央の元素と価数が同じ仲間が、上下にそろって並びます。
+      </p>
+      <p>
+        公式サイト:
+        <a href="https://ss.scphys.kyoto-u.ac.jp/elementouch/" target="_blank" rel="noopener">エレメンタッチ 公式ページ<span aria-label="（新しいタブで開きます）"> ↗</span></a>
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>論文引用</h3>
+      <p class="menu-cite">
+        Y. Maeno, K. Hagino, T. Ishiguro,<br />
+        “Three related topics on the periodic tables of elements,”<br />
+        <i lang="en">Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
+        <a href="https://doi.org/10.1007/s10698-020-09387-z" target="_blank" rel="noopener">doi.org/10.1007/s10698-020-09387-z<span aria-label="（新しいタブで開きます）"> ↗</span></a>
+        （オープンアクセス）
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>ライセンス・クレジット</h3>
+      <p>
+        本アプリ「元素ベルト」は、教育ブランド <b>EDUYN</b> が<b>無償</b>で提供しています（コードは <b>CC BY 4.0</b>）。並べ方の着想元であるエレメンタッチの考案者・前野悦輝氏の了承のもと、上記論文を引用しています。商用利用の際は別途エレメンタッチのエージェントへの相談が必要です。
+      </p>
+    </section>`,
+    },
+    en: {
+      title: "Element Belt",
+      langHeading: "言語 / Language",
+      bohrCap: "Electron configuration diagram",
+      aria_menubtn: "Open help and information",
+      aria_close: "Close",
+      aria_bohr: "Electron configuration diagram. Tap to enlarge.",
+      tip_meta:
+        "The number on the left is the <b>atomic number</b> — the <b>number of protons (positive particles)</b> in the atom's center (nucleus), fixed for each element (hydrogen=1, carbon=6, iron=26…). The higher the number, the heavier the element generally is.<br>The letters on the right are the <b>element symbol</b>, a worldwide abbreviation — for example, Fe=iron, Au=gold.",
+      tip_cat:
+        "Shows what group this element belongs to.<br>Elements are broadly divided into <b>metals</b> (which conduct electricity well and shine when polished) and <b>nonmetals</b>, and are further classified into the <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, and <span class='f'>f</span> <b>blocks</b> by how their electrons fill in.",
+      tip_block_s:
+        "<b class='s'>s block</b><br>Elements fall into four groups (blocks) by how their electrons fill in. This is one of them.<br>These are elements whose electrons enter the outermost room called the <b>s orbital</b> — such as hydrogen, sodium, and calcium. Many are familiar, reactive elements found in water and salt.",
+      tip_block_p:
+        "<b class='p'>p block</b><br>Elements whose electrons enter the outer room called the <b>p orbital</b>.<br>Includes elements that make up living things, such as carbon, nitrogen, and oxygen, and gases such as chlorine and neon. Many in this group are nonmetals.",
+      tip_block_d:
+        "<b class='d'>d block</b><br>Elements whose electrons enter the room one level inside, called the <b>d orbital</b>; they are called <b>transition metals</b>.<br>This group gathers metals familiar from tools, machines, and accessories — such as iron, copper, gold, and silver.",
+      tip_block_f:
+        "<b class='f'>f block</b><br>Elements whose electrons enter the room even further inside, called the <b>f orbital</b>.<br>Called the <b>lanthanides and actinides</b>, these are somewhat unusual metals used in powerful magnets, rare metals, and nuclear power.",
+      tip_collabel:
+        "This is this app's own arrangement.<br>Unlike an ordinary periodic table, it lines up above and below the central element the <b>elements with very similar properties</b> (those with the same <b>valence</b> — the same tendency to bond with other atoms).<br>The higher up, the lighter the element; the lower down, the heavier. Scroll (or drag) vertically to move among them.",
+      tip_shells:
+        "Inside an atom, <b>electrons (negative particles)</b> orbit the central nucleus. Electrons fill in layers called <b>shells</b>.<br>These are the numbers of electrons in each shell, counted from the inside as <b>K, L, M, N…</b>",
+      tip_orb:
+        "This shows which room (<b>orbital</b>) each electron actually occupies; it is called the <b>electron configuration</b>.<br>Example: <b>1s²</b> means 'two electrons in the room called 1s.' The small superscript number is the electron count, and the color shows the room type: <span class='s'>s</span>, <span class='p'>p</span>, <span class='d'>d</span>, <span class='f'>f</span>.",
+      menu_content: `
+    <h2 id="menu-title" class="menu-h1">How to use “Element Belt”</h2>
+
+    <section class="menu-sec">
+      <h3>Controls</h3>
+      <ul>
+        <li><b>Horizontal scroll / drag / ← → keys</b>: Move through the elements in order of atomic number.</li>
+        <li><b>Vertical scroll / drag / ↑ ↓ keys</b>: Move among elements that share the same valence (bonding tendency) as the central one.</li>
+        <li><b>Tap a cell</b>: Bring that element to the center.</li>
+        <li><b>Tap the name, number, symbol, s/p/d/f, electron shell, or electron configuration (hover on a PC)</b>: Show a simple explanation.</li>
+        <li><b>Tap the electron configuration diagram</b>: Enlarge it.</li>
+        <li>Add <code>?e=Fe</code> or <code>?z=26</code> to the URL to open with that element selected.</li>
+      </ul>
+    </section>
+
+    <section class="menu-sec">
+      <h3>About this arrangement (ElemenTouch)</h3>
+      <p>
+        The arrangement of this periodic table is inspired by the three-dimensional periodic table “<b>ElemenTouch</b>,” devised by <b>Yoshiteru Maeno</b> of Kyoto University. Elements that share the same valence as the central element line up above and below it.
+      </p>
+      <p>
+        Official site:
+        <a href="https://ss.scphys.kyoto-u.ac.jp/elementouch/" target="_blank" rel="noopener">ElemenTouch official page<span aria-label="(opens in a new tab)"> ↗</span></a>
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>Citation</h3>
+      <p class="menu-cite">
+        Y. Maeno, K. Hagino, T. Ishiguro,<br />
+        “Three related topics on the periodic tables of elements,”<br />
+        <i lang="en">Foundations of Chemistry</i> <b>23</b>, 201–214 (2021).<br />
+        <a href="https://doi.org/10.1007/s10698-020-09387-z" target="_blank" rel="noopener">doi.org/10.1007/s10698-020-09387-z<span aria-label="(opens in a new tab)"> ↗</span></a>
+        (open access)
+      </p>
+    </section>
+
+    <section class="menu-sec">
+      <h3>License &amp; credits</h3>
+      <p>
+        This app “Element Belt” is provided free of charge by the educational brand <b>EDUYN</b> (the code is licensed under <b>CC BY 4.0</b>). With the consent of Yoshiteru Maeno, the originator of ElemenTouch that inspired the arrangement, we cite the paper above. For commercial use, please consult the ElemenTouch agent separately.
+      </p>
+    </section>`,
+    },
+  };
+  /* data-i18n* 属性を持つ要素へ現在言語の文言を流し込む */
+  function applyI18n() {
+    document.documentElement.lang = LANG;
+    document.title = t("title");
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+      el.innerHTML = t(el.dataset.i18nHtml);
+    });
+    document.querySelectorAll("[data-i18n-tip]").forEach((el) => {
+      el.setAttribute("data-tip", t(el.dataset.i18nTip));
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      el.setAttribute("aria-label", t(el.dataset.i18nAria));
+    });
+  }
+
+  /* 配信ディレクトリ（末尾スラッシュ付）。/element_belt/ja のような言語パスや
+     index.html を取り除いた「実体の置き場所」を返す。相対資産の解決に使う */
+  function baseDir() {
+    let p = location.pathname.replace(/[^/]*$/, ""); // 末尾のファイル名を除去
+    p = p.replace(/(ja|en)\/$/, ""); // 末尾の言語ディレクトリを除去
+    return p || "/";
+  }
+
+  /* メニュー内の言語切替 UI を生成（現在言語をハイライト） */
+  function buildLangUI() {
+    const box = document.getElementById("menulang");
+    if (!box) return;
+    const langs = [
+      ["ja", "日本語"],
+      ["en", "English"],
+    ];
+    box.innerHTML =
+      `<span class="menu-lang-h">${t("langHeading")}</span>` +
+      langs
+        .map(
+          ([code, label]) =>
+            `<button type="button" class="menu-lang-btn${
+              code === LANG ? " active" : ""
+            }" data-lang="${code}" aria-pressed="${code === LANG}">${label}</button>`
+        )
+        .join("");
+    box.querySelectorAll("button[data-lang]").forEach((b) => {
+      b.addEventListener("click", () => setLang(b.dataset.lang));
+    });
+  }
+
+  /* 言語切替（リロードなしで全再描画し、URL を /ja /en に反映） */
+  function setLang(lang) {
+    if (lang !== "ja" && lang !== "en") return;
+    LANG = lang;
+    try {
+      localStorage.setItem("eb_lang", lang);
+    } catch (e) {}
+    applyI18n();
+    buildLangUI();
+    readoutFor(cur);
+    drawConfig(cur + 1);
+    /* URL パスを /ja /en に反映（クエリ・ハッシュは維持）。file:// では失敗しうるので握りつぶす */
+    try {
+      history.replaceState(
+        null,
+        "",
+        baseDir() + lang + "/" + location.search + location.hash
+      );
+    } catch (e) {}
+  }
+
+  /* /ja /en 配下でも favicon が解決できるよう絶対パス化 */
+  (function fixFavicon() {
+    const fav = document.querySelector('link[rel="icon"]');
+    if (fav) fav.setAttribute("href", baseDir() + "favicon.svg");
+  })();
+
   sizeFooter();
   sizePads();
+  applyI18n(); // 起動時に現在言語を適用（ツールチップ init が data-tip を拾う前に実行）
+  buildLangUI();
   scene.scrollLeft = initialIndex() * CW; // 起動時の中央元素（URL 引数優先, 既定 Ca）
   update();
 
-  /* 各元素の特徴（初学者向け・数文）。#jp タップで中央元素の説明を表示 */
-  const DESC = {
+  /* 各元素の特徴（初学者向け・数文）。#jp タップで中央元素の説明を表示。
+     日本語=DESC_JA / 英語=DESC_EN を DESC = {ja, en} に統合（末尾） */
+  const DESC_JA = {
     1: "宇宙でいちばん多く、いちばん軽い元素。燃えると水になり、燃料電池の燃料として注目されています。星が光るエネルギーも、この元素の核融合から生まれます。",
     2: "空気より軽く燃えない気体で、風船や飛行船に使われます。吸うと声が高くなりますが、変声用は酸素を混ぜたもので、純粋なものの吸引は危険です。宇宙では水素の次に多い元素です。",
     3: "最も軽い金属。スマホや電気自動車の充電池（リチウムイオン電池）に欠かせません。水に浮くほど軽い金属です。",
@@ -1468,6 +1758,127 @@
     117: "米国のテネシー州にちなむ人工超重元素。2010年代に存在が確認された新しい元素です。",
     118: "現在知られている最も重い元素。研究者オガネシアンにちなみます。ごく短い時間しか存在しない人工元素です。",
   };
+  const DESC_EN = {
+    1: "The most abundant and lightest element in the universe. It burns to form water and is attracting attention as fuel for fuel cells. The energy that makes stars shine also comes from the nuclear fusion of this element.",
+    2: "A gas lighter than air that does not burn, used in balloons and airships. Inhaling it makes your voice higher, but voice-change products are mixed with oxygen; inhaling the pure gas is dangerous. It is the second most abundant element in the universe after hydrogen.",
+    3: "The lightest metal. Essential for the rechargeable batteries (lithium-ion batteries) in smartphones and electric cars. It is light enough to float on water.",
+    4: "A light, hard metal. Because it lets X-rays pass through easily, it is used in precision instruments and aerospace parts. Its dust is toxic, so it must be handled with care.",
+    5: "Makes glass heat-resistant (heatproof glass) and is also used in detergents and insecticides. It absorbs neutrons, so it is used to control nuclear reactors.",
+    6: "The central element that makes up living things. Both pencil lead (graphite) and diamond are made of the same carbon. It is also present in the air as carbon dioxide.",
+    7: "A gas that makes up about 80% of the air. A main ingredient of fertilizer, it is also used as a filler gas to keep food from oxidizing. Liquid nitrogen is used for ultra-low-temperature cooling.",
+    8: "A gas essential for breathing that makes up about 20% of the air. It helps things burn. It is also part of water (H₂O).",
+    9: "An element with a very strong tendency to react. A small amount is added to toothpaste as a compound (fluoride) to prevent cavities. It is also used in the non-stick coating of frying pans. The pure element is highly poisonous.",
+    10: "A gas that barely reacts with anything. It glows red when electricity passes through it, which is the origin of the name 'neon sign.'",
+    11: "A component of table salt (sodium chloride). Important for the body's water balance. The pure element is very reactive and reacts violently when placed in water.",
+    12: "A light metal used in alloys for car and laptop bodies. It emits a strong white light when it burns, so it is used in fireworks and flares.",
+    13: "A light, rust-resistant metal. Widely used in everyday items such as coins, aluminium cans, and window frames. It is the most abundant metal in the Earth's crust.",
+    14: "The main component of sand and quartz. As a semiconductor, it is essential for the silicon chips in computers. It is also used in solar cells.",
+    15: "An element essential to the bones, DNA, and energy molecules of living things. It is also used in match heads and fertilizer.",
+    16: "A yellow element familiar from volcanoes and hot springs. It toughens rubber (vulcanization) and is the raw material for sulfuric acid. It also forms compounds such as hydrogen sulfide, the source of the hot-spring smell.",
+    17: "A gas used for disinfection that keeps tap water and pools clean. It is also part of table salt. The pure element is toxic.",
+    18: "An unreactive gas present in small amounts in the air. It is used as a shielding gas to protect materials in light bulbs and during welding.",
+    19: "One of the three major elements of fertilizer, essential for plant growth. In the body it helps nerves and muscles work. It is abundant in bananas.",
+    20: "The element that builds bones and teeth. Abundant in milk and small fish. It is also the main component of limestone, chalk, and seashells.",
+    21: "A rare metal used to make light, strong alloys. Used in high-end bicycle and aircraft parts and in bright stadium lighting.",
+    22: "A light, strong, rust-resistant metal. Used in artificial joints, eyeglasses, and aircraft. It is notably resistant to seawater.",
+    23: "Added to steel, it makes it stronger and tougher. Used in tools and springs. It forms vividly colored compounds.",
+    24: "Plating with it gives a shiny, rust-resistant finish. An important component of stainless steel. It is also the source of a ruby's red color.",
+    25: "An element that makes steel hard and tough. Also used in dry-cell batteries. The body needs it in trace amounts.",
+    26: "The most widely used metal. It supports civilization in buildings, machines, and rails. Blood is red thanks to this element, too.",
+    27: "Famous for its blue pigment (cobalt blue). Also used in rechargeable batteries and powerful magnets.",
+    28: "Rust-resistant, used in plating and coins. Also a material for stainless steel and rechargeable batteries. It is a metal that sticks to magnets.",
+    29: "It conducts electricity well, so it is essential for electrical wires. It is the material of the 10-yen coin. When it corrodes it turns blue-green (patina).",
+    30: "Used in plating that prevents iron from rusting (galvanized steel). It is also a material for dry-cell batteries and a trace element the body needs.",
+    31: "A metal with a melting point so low it melts in the heat of your palm. Used in LEDs and high-speed semiconductors.",
+    32: "A semiconductor material used in optical fibers and infrared cameras. It was once used in transistors as well.",
+    33: "Known as poisonous, but in tiny amounts it is used in semiconductors (gallium arsenide). It was historically used as a poison.",
+    34: "It reacts to light and was used in old copiers and light sensors. The body needs a trace of it, but too much is toxic.",
+    35: "A rare nonmetal that is liquid at room temperature. Reddish-brown with a pungent smell. It was used in flame retardants and photographic film.",
+    36: "An unreactive gas present in tiny amounts in the air. Used in high-performance light bulbs and some lighting.",
+    37: "A very reactive, soft metal. Used in precise atomic clocks and in research.",
+    38: "The element that produces the red color in fireworks. It was once used in the glass of CRT televisions.",
+    39: "A rare metal used in white LEDs, red phosphors, and lasers. Also used in superconducting materials.",
+    40: "A metal resistant to heat and chemicals. Used in nuclear reactor parts and in gem-like zirconia (a diamond-like artificial stone).",
+    41: "Used in superconducting magnets, MRI, and strong alloys. It develops vivid colors, so it is also used in accessories.",
+    42: "An element that makes steel resistant to high temperatures. Used in engines and tools. It is also a trace nutrient that plants need.",
+    43: "An artificial radioactive element that barely exists in nature. Used in medical imaging tests (exams that look inside the body).",
+    44: "A hard metal used in electronic parts and as a catalyst for chemical reactions. A small amount strengthens alloys.",
+    45: "Essential as a catalyst that cleans car exhaust. A very expensive metal with a beautiful luster.",
+    46: "Used in exhaust-cleaning catalysts and dental materials. It has the unusual property of absorbing large amounts of hydrogen.",
+    47: "The metal that conducts electricity and heat the best. Used in ornaments, tableware, mirrors, and electronic parts. Also known for its antibacterial action.",
+    48: "Used in yellow and red pigments and in older rechargeable batteries. It is toxic and caused the pollution disease known as itai-itai disease.",
+    49: "A rare metal essential for the transparent electrodes (touch panels) of smartphones and TVs. It is a soft metal.",
+    50: "Rust-resistant; coated on iron to make tinplate. Also a material for solder. Bronze, made by mixing it with copper, has been used since ancient times.",
+    51: "Hardens alloys and is used in flame retardants. Also used as a semiconductor material.",
+    52: "A rare element used in solar cells and alloys. It forms compounds with a garlic-like smell.",
+    53: "Used in gargles and disinfectants. Needed for thyroid function and abundant in seaweed. Japan is a major producer.",
+    54: "A brightly glowing gas used in car headlights and projectors. Also used in anesthesia and in the ion engines of spacecraft.",
+    55: "The element used to define the length of one second. A soft metal that is extremely reactive.",
+    56: "Used in the contrast agent (barium sulfate) you drink for stomach X-rays. It also produces the green color in fireworks.",
+    57: "A rare metal used in camera lenses, rechargeable batteries, and catalysts. It heads the group called the lanthanides.",
+    58: "Used in abrasives for polishing glass and gems, and in lighter flints. It is a relatively abundant rare metal in the Earth's crust.",
+    59: "Used in powerful magnets and in the tinted glass of welding goggles. Also used for yellow coloring.",
+    60: "The material of the world's strongest permanent magnets (neodymium magnets). Essential for motors and speakers.",
+    61: "A radioactive rare metal that barely exists in nature. It was once used in luminous paint and small batteries.",
+    62: "A material for heat-resistant magnets. Also used as a neutron-absorbing material inside nuclear reactors.",
+    63: "It emits red and blue fluorescence and is used in banknote anti-counterfeiting and TV color.",
+    64: "Used in the contrast agent for MRI exams. A rare metal that absorbs neutrons well and has unusual magnetic properties.",
+    65: "A rare metal used in green phosphors and in special magnetic materials that change shape.",
+    66: "Added to make magnets that stay strong even at high temperatures. An important element for hybrid car motors.",
+    67: "Strongly magnetic, used in medical lasers (for example, to break up stones).",
+    68: "Used in materials that amplify signals in optical-fiber communication. Also used for pink coloring.",
+    69: "Especially rare even among rare metals. Used in portable X-ray devices and lasers.",
+    70: "Used in high-precision atomic clocks and in sensors that measure the strength of steel.",
+    71: "The heaviest lanthanide. Used in cancer scanners (PET) and as a catalyst for chemical reactions.",
+    72: "Heat-resistant, used in tiny semiconductor parts and in nuclear reactor control rods.",
+    73: "Used in small capacitors and essential for smartphones and PCs. Body-friendly, it is also used in medical materials.",
+    74: "The element with the highest melting point of any metal. It was once used in light-bulb filaments. Also used in cutting tools and weights.",
+    75: "A rare metal with a very high melting point. Used in jet-engine parts exposed to high heat.",
+    76: "The densest (heaviest) naturally occurring metal. Very hard, it was used in fountain-pen nibs and the like.",
+    77: "A very hard, corrosion-resistant metal. Used in spark plugs and famous as evidence for the meteorite theory of the dinosaurs' extinction.",
+    78: "A beautiful, rust-free precious metal (platinum). Besides jewelry, it is essential as a catalyst for cleaning exhaust gas.",
+    79: "A precious metal that never rusts and shines beautifully. Besides decoration and investment, it conducts electricity well and is used in electronic parts.",
+    80: "A rare metal that is liquid at room temperature. It was once used in thermometers and fluorescent lamps. It is toxic and caused the pollution disease known as Minamata disease.",
+    81: "A toxic metal once used as rat poison. Today it is used in small amounts in infrared detectors and medical tests.",
+    82: "A heavy, soft metal. It blocks radiation and is used in car batteries. Because it is toxic, its uses are decreasing.",
+    83: "An element with beautiful rainbow-colored crystals. Used in stomach medicines and in harmless, lead-free solder.",
+    84: "A rare element with strong radioactivity, discovered by the Curies. Even a tiny amount gives off strong heat.",
+    85: "A radioactive element that exists only in tiny amounts in nature. Its application to cancer treatment is being researched.",
+    86: "A radioactive gas that can seep from the ground and collect in buildings. It is sometimes found in hot springs.",
+    87: "A very unstable radioactive element that barely exists in nature. Only tiny amounts are made for research.",
+    88: "It glows pale blue with strong radioactivity. It was once used in luminous paint but is no longer used because it is dangerous. Discovered by the Curies.",
+    89: "A radioactive element that glows pale blue in the dark. Used in research for cancer treatment. It heads the group called the actinides.",
+    90: "Radioactive but relatively stable. It is attracting attention as a next-generation nuclear fuel. It was once used in gas lamps as well.",
+    91: "A rare element with strong radioactivity. It is handled mainly for research.",
+    92: "A radioactive element that fuels nuclear power and atomic bombs. It releases great energy through nuclear fission.",
+    93: "An artificially made radioactive element. Coming after uranium, it was named after the planet Neptune.",
+    94: "A radioactive element made in nuclear reactors. Used as nuclear fuel and as a power source (heat source) for space probes.",
+    95: "An artificial radioactive element. Tiny amounts are used in some smoke detectors (the ionization type).",
+    96: "An artificial radioactive element named after the Curies. It gives off strong heat and is used to power space probes.",
+    97: "An artificial radioactive element named after the U.S. city of Berkeley. Only tiny amounts can be made, used mainly for research.",
+    98: "An artificial element named after the U.S. state of California. It emits many neutrons and is used in research on resource exploration and cancer treatment.",
+    99: "An artificial radioactive element named after Einstein. Discovered in the debris of a hydrogen-bomb test, only tiny amounts are made for research.",
+    100: "An artificial element named after the physicist Fermi. Only slight amounts can be made, and it is used only for research.",
+    101: "An artificial element named after Mendeleev, who created the periodic table. It is so rare it can only be made one atom at a time.",
+    102: "An artificial radioactive element named after Nobel. Because it decays quickly, studying its properties is difficult.",
+    103: "An artificial element named after Lawrence, who invented the accelerator. It is the last of the actinides.",
+    104: "An artificially made superheavy element, named after the nuclear physicist Rutherford.",
+    105: "An artificial superheavy element named after the Russian research city of Dubna. It exists for only a very short time.",
+    106: "An artificial superheavy element named after Seaborg, famous for discovering elements.",
+    107: "An artificial superheavy element named after Bohr, who explained the structure of the atom.",
+    108: "An artificial superheavy element named after the German state of Hesse, where the research institute is located.",
+    109: "An artificial superheavy element named after Meitner, who explained nuclear fission. Only a few atoms have ever been made.",
+    110: "An artificial superheavy element named after the German city of Darmstadt.",
+    111: "An artificial superheavy element named after Röntgen, who discovered X-rays.",
+    112: "An artificial superheavy element named after Copernicus of the heliocentric theory.",
+    113: "An element discovered and named by Japan's RIKEN institute. Named after 'Nihon' (Japan), it was the first element to be named in Asia.",
+    114: "An artificial superheavy element named after the Russian physicist Flerov.",
+    115: "An artificial superheavy element named after Moscow (the region) of Russia.",
+    116: "An artificial superheavy element named after the U.S. Livermore laboratory.",
+    117: "An artificial superheavy element named after the U.S. state of Tennessee. A new element whose existence was confirmed in the 2010s.",
+    118: "The heaviest element currently known, named after the researcher Oganessian. An artificial element that exists for only a very short time.",
+  };
+  const DESC = { ja: DESC_JA, en: DESC_EN };
 
   /* ====================== 8. カスタムツールチップ ====================== */
   /* data-tip を持つ要素で発火。PC はホバー、スマホ/タッチはタップで開閉。
@@ -1480,9 +1891,11 @@
     /* 表示内容を決める。#bohr は現在の電子配置図を拡大複製、それ以外は data-tip */
     function contentFor(el) {
       if (el.id === "bohr")
-        return `<svg viewBox="0 0 200 200" class="tip-bohr">${el.innerHTML}</svg><div class="tip-cap">電子の配置図</div>`;
+        return `<svg viewBox="0 0 200 200" class="tip-bohr">${el.innerHTML}</svg><div class="tip-cap">${t(
+          "bohrCap"
+        )}</div>`;
       if (el.id === "jp")
-        return `<b>${EL[cur].j}（${EL[cur].s}）</b><br>${DESC[cur + 1] || ""}`;
+        return `<b>${nameSym(EL[cur])}</b><br>${desc(cur + 1)}`;
       return el.getAttribute("data-tip");
     }
     function show(el) {
