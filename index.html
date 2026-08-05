@@ -88,7 +88,7 @@
   }
   .readout .cat {
     margin-top: 4px;
-    font-size: 14px;
+    font-size: 16px;
     color: var(--soft);
   }
   .readout .col {
@@ -324,10 +324,6 @@
     opacity: 1;
     transform: none;
     visibility: visible;
-  }
-  /* 中央の価数ラベル（#collabel）の解説は情報量が多く重要なので大きめに */
-  .tip.tip-lg {
-    font-size: 18px;
   }
   .tip b {
     color: var(--green); /* 見出しは深緑 */
@@ -1950,7 +1946,6 @@
     function show(el) {
       curEl = el;
       tip.innerHTML = contentFor(el);
-      tip.classList.toggle("tip-lg", el.id === "collabel"); // 価数解説のみ大きく
       tip.classList.add("show");
       tip.setAttribute("aria-hidden", "false");
       const r = el.getBoundingClientRect(),
