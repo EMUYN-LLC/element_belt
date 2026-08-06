@@ -43,6 +43,7 @@
     --f-bg: #e6dcf0;
     --cream: #fbf8ec; /* ツールチップ背景（ごく薄いクリーム） */
     --green: #17603a; /* ツールチップ枠・見出し（深緑） */
+    --gutter: #cfdbd2; /* 640px 枠の外側（左右余白・将来の広告面）。薄いダークグリーン */
     --d-strong: #8a520e; /* クリーム地でも 4.5:1 を満たす濃い d 色 */
     --focus: #1f6f9c; /* フォーカスリング */
   }
@@ -53,13 +54,20 @@
   body {
     height: 100%;
   }
+  html {
+    /* 640px 枠の外側（左右の余白）の色 */
+    background: var(--gutter);
+  }
   body {
-    margin: 0;
+    margin: 0 auto; /* PC でも中央寄せ */
+    max-width: 640px; /* PC でもスマホ幅で表示 */
     overflow: hidden;
     background: var(--paper);
     color: var(--ink);
     font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
     -webkit-text-size-adjust: 100%;
+    /* 配下の position:fixed 要素を body の 640px 枠に閉じ込める */
+    transform: translateZ(0);
   }
   .num {
     font-family: "Bahnschrift", "DIN Alternate", "Helvetica Neue", sans-serif;
@@ -1958,11 +1966,13 @@
       tip.setAttribute("aria-hidden", "false");
       const r = el.getBoundingClientRect(),
         tr = tip.getBoundingClientRect(),
+        b = document.body.getBoundingClientRect(), // body に transform があると fixed の基準は body 枠
         m = 8;
-      let left = r.left + r.width / 2 - tr.width / 2;
-      left = Math.max(m, Math.min(left, innerWidth - tr.width - m));
-      let top = r.top - tr.height - 10; // まず上に出す
-      if (top < m) top = r.bottom + 10; // 入らなければ下へ
+      /* すべて body ローカル座標に変換（body 全幅なら b.left=b.top=0 で従来どおり） */
+      let left = r.left + r.width / 2 - tr.width / 2 - b.left;
+      left = Math.max(m, Math.min(left, b.width - tr.width - m));
+      let top = r.top - tr.height - 10 - b.top; // まず上に出す
+      if (top < m) top = r.bottom + 10 - b.top; // 入らなければ下へ
       tip.style.left = left + "px";
       tip.style.top = top + "px";
     }
