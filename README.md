@@ -4,11 +4,11 @@
 
 立体周期表 **エレメンタッチ**（考案: 京都大学・前野悦輝先生）の配列に着想を得た、単一 HTML ファイルの教育用アプリです。前野先生のご了承のもとで公開しています（[エレメンタッチと引用について](#エレメンタッチと引用について)）。
 
-**デモ:** https://medeputize.sakura.ne.jp/app/element_belt/
+**アプリ:** https://app.emuyn.net/element_belt/
 
 **提供:** EMUYN LLC（教育ブランド **EDUYN**）
 
-<!-- ここにスクリーンショットを 1 枚 -->
+![アプリのデモ](https://app.emuyn.net/element_belt/ElementBelt.gif)
 
 ---
 
