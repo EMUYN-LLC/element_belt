@@ -1197,7 +1197,7 @@
   }
   scene.addEventListener("scroll", update, { passive: true });
 
-  /* スクロールが止まったら最寄りのセルへ吸い付く（中央枠と位置を合わせる） */
+  /* 横スクロールが止まったら最寄りのセルへスムースに吸着する */
   let snapTimer = null;
   scene.addEventListener(
     "scroll",
@@ -1289,11 +1289,6 @@
     down = false;
     if (flying) return;
     scene.classList.remove("dragging");
-    if (axis !== "v")
-      scene.scrollTo({
-        left: Math.round(scene.scrollLeft / CW) * CW,
-        behavior: "smooth",
-      });
   }
   scene.addEventListener("pointerup", up);
   scene.addEventListener("pointercancel", up);
