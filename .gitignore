@@ -3,3 +3,6 @@ element-strip-new_*.html
 
 # Qiita 投稿用ドラフト（公開不要）
 qiita_draft.md
+
+# エレメンタッチ公式資料（参照用ローカルコピー、再配布不可）
+elementouch_ref/
