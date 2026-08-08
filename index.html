@@ -1461,17 +1461,20 @@
   scene.addEventListener("scroll", update, { passive: true });
 
   /* 横スクロールが止まったら最寄りのセルへスムースに吸着する */
+  function snapToCenter() {
+    if (down || flying) return; // ドラッグ中・ジャンプ中は触らない
+    const target = Math.round(scene.scrollLeft / CW) * CW;
+    if (Math.abs(scene.scrollLeft - target) > 0.5)
+      scene.scrollTo({ left: target, behavior: "smooth" });
+  }
+  /* scroll イベント（ホイール等）は 110ms のデバウンスで吸着。
+     ドラッグの指離しは scroll を発火しないので up() から直接 snapToCenter() を呼ぶ */
   let snapTimer = null;
   scene.addEventListener(
     "scroll",
     () => {
       clearTimeout(snapTimer);
-      snapTimer = setTimeout(() => {
-        if (down || flying) return; // ドラッグ中・ジャンプ中は触らない
-        const target = Math.round(scene.scrollLeft / CW) * CW;
-        if (Math.abs(scene.scrollLeft - target) > 0.5)
-          scene.scrollTo({ left: target, behavior: "smooth" });
-      }, 110);
+      snapTimer = setTimeout(snapToCenter, 110);
     },
     { passive: true }
   );
@@ -1552,6 +1555,7 @@
     down = false;
     if (flying) return;
     scene.classList.remove("dragging");
+    snapToCenter(); // 指を離したら即吸着（ゆっくり動かして離した場合の取りこぼし対策）
   }
   scene.addEventListener("pointerup", up);
   scene.addEventListener("pointercancel", up);
