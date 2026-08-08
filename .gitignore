@@ -1,8 +1,11 @@
 # 開発中の日付つきバックアップ（公開不要）
 element-strip-new_*.html
 
-# Qiita 投稿用ドラフト（公開不要）
-qiita_draft.md
+# 宣伝・投稿用ドラフト（note / Qiita 等。公開不要）
+promotion/
 
 # エレメンタッチ公式資料（参照用ローカルコピー、再配布不可）
 elementouch_ref/
+
+# デプロイ情報（サーバーパス等を含む。公開不可）
+DEPLOY.md

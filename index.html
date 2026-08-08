@@ -263,14 +263,14 @@
     max-width: 280px;
   } /* 伸ばさず中で折り返し。全体は中央寄せ */
   .conf-text .shells {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.8;
   }
   .conf-text .shells span {
     margin-right: 10px;
   }
   .conf-text .orb {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--soft);
     line-height: 1.7;
   }
@@ -361,6 +361,45 @@
     color: var(--soft);
     text-align: center;
   }
+  /* #bohr / #shells 共通 tooltip の殻の説明文（図の下に区切って表示） */
+  .tip-shells-text {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+    text-align: left;
+  }
+  /* #orb tooltip の軌道図（A: ボックス図 / B: 軌道の形） */
+  .tip-orb-a {
+    margin-top: 10px;
+  }
+  .tip-orb-b {
+    margin-top: 10px;
+  }
+  .orb-boxes,
+  .orb-shapes {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+  }
+  /* 炎色反応 tooltip */
+  .tip-flame {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .flame-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    margin-right: 6px;
+    flex: 0 0 auto;
+  }
+  .tip-flame-row {
+    margin-top: 8px;
+  }
 
   /* ====== ヘッダー右端のメニュー（使い方・引用） ====== */
   .menu-btn {
@@ -386,6 +425,30 @@
     background: #fff;
   }
   .menu-btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  /* ====== 左上：炎色反応マーク（#menubtn の対称・背景は白） ====== */
+  .flame-btn {
+    position: fixed;
+    top: 8px;
+    left: 10px;
+    z-index: 40;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    cursor: help;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .flame-btn[hidden] {
+    display: none;
+  }
+  .flame-btn:focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: 2px;
   }
@@ -532,6 +595,32 @@
     <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
     <circle cx="12" cy="7.6" r="1.4" fill="currentColor" />
     <rect x="10.8" y="10.6" width="2.4" height="7" rx="1.2" fill="currentColor" />
+  </svg>
+</button>
+
+<!-- 左上：炎色反応マーク（#menubtn と対称。色は updateFlame が設定） -->
+<button
+  id="flamebtn"
+  class="flame-btn"
+  hidden
+  aria-label="炎色反応"
+  data-i18n-aria="aria_flame"
+  aria-haspopup="true"
+>
+  <svg viewBox="5 1 14 22" width="42" height="42" aria-hidden="true" focusable="false">
+    <path
+      class="flame-outer"
+      d="M12.5 1.6c1.1 3.2-.9 4.7-2.2 6.6-1 1.4-1.5 2.7-.7 4 .5-.9 1.2-1.4 2-1.7-.6 1.6-.2 2.9.8 3.8.6-2 1.8-2.6 2.7-4 1.6-2.4 1.3-5-.9-7.4.6 2.6-.5 3.9-1.6 4.6.6-1.9.5-4-.4-5.9zM12 10.2c2.8 0 5 2.1 5 4.9 0 2.7-2.2 4.9-5 4.9s-5-2.2-5-4.9c0-1.9 1-3.4 2.4-4.2-.3 1.4.2 2.6 1.1 3.2-.3-1.9.6-3.2 1.5-3.9z"
+      fill="currentColor"
+      stroke="rgba(0,0,0,.18)"
+      stroke-width=".5"
+    />
+    <path
+      class="flame-inner"
+      d="M12.2 13.2c1.4 0 2.5 1.1 2.5 2.5s-1.1 2.5-2.5 2.5-2.5-1.1-2.5-2.5c0-1 .6-1.9 1.4-2.3-.1.8.2 1.4.7 1.7-.2-1 .3-1.6.9-1.9z"
+      fill="#fff"
+      opacity=".55"
+    />
   </svg>
 </button>
 
@@ -1145,6 +1234,129 @@
     document.getElementById("orb").innerHTML = ORDER.filter((k) => c[k] > 0)
       .map((k) => `<span style="color:${OCOL[k[1]]}">${k + sup(c[k])}</span>`)
       .join(" ");
+    updateFlame(z);
+  }
+
+  /* ---- 炎色反応（Web 調査した正確な色・波長）。Z キー ---- */
+  const FLAME = {
+    3: { c: "#DC2A4D", ja: "深紅", en: "crimson red", nm: "670.8 nm" }, // Li
+    5: { c: "#57B947", ja: "緑", en: "green", nm: "518, 546 nm" }, // B
+    11: { c: "#FFC400", ja: "黄色", en: "yellow", nm: "589 nm" }, // Na
+    19: { c: "#C79AD6", ja: "淡紫", en: "lilac", nm: "766, 404 nm" }, // K
+    20: { c: "#F05A22", ja: "橙赤", en: "orange-red", nm: "622 nm" }, // Ca
+    29: { c: "#12A17E", ja: "青緑", en: "blue-green", nm: "515–525 nm" }, // Cu
+    37: { c: "#A32C6C", ja: "赤紫", en: "red-violet", nm: "780 nm" }, // Rb
+    38: { c: "#E11B22", ja: "紅", en: "scarlet red", nm: "605–688 nm" }, // Sr
+    49: { c: "#3F57C9", ja: "藍青", en: "indigo blue", nm: "451 nm" }, // In
+    55: { c: "#6949C4", ja: "青紫", en: "blue-violet", nm: "455 nm" }, // Cs
+    56: { c: "#8FBF33", ja: "黄緑", en: "yellow-green", nm: "524 nm" }, // Ba
+    81: { c: "#2FA84F", ja: "緑", en: "green", nm: "535 nm" }, // Tl
+  };
+  /* 表示中の元素に炎色反応があれば左上マークを出す（なければ隠す） */
+  function updateFlame(z) {
+    const btn = document.getElementById("flamebtn"),
+      d = FLAME[z];
+    if (!d) {
+      btn.hidden = true;
+      return;
+    }
+    btn.hidden = false;
+    btn.querySelector("svg").style.color = d.c;
+  }
+
+  /* ---- #orb tooltip 用の軌道図（画像素材なし・config から手続き生成）---- */
+  const BOXN = { s: 1, p: 3, d: 5, f: 7 }; // 各軌道型の箱数
+  /* 1本の矢印（↑ or ↓）。cx は箱内の水平中心 */
+  function orbArrow(cx, y, bh, up, col) {
+    const top = y + 3.5,
+      bot = y + bh - 3.5;
+    const tail = up ? bot : top,
+      head = up ? top : bot,
+      hd = up ? 3 : -3;
+    return (
+      `<line x1="${cx}" y1="${tail}" x2="${cx}" y2="${head}" stroke="${col}" stroke-width="1.3"/>` +
+      `<path d="M${cx - 2.2} ${head + hd} L${cx} ${head} L${cx + 2.2} ${head +
+        hd}" fill="none" stroke="${col}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>`
+    );
+  }
+  /* A. オービタルダイアグラム: 軌道ごとの箱＋↑↓（フントの規則）を SVG で返す */
+  function drawOrbBoxes(z) {
+    const c = config(z);
+    const rows = ORDER.filter((k) => c[k] > 0);
+    const bw = 18,
+      bh = 22,
+      gap = 3,
+      labelW = 28,
+      rowGap = 4;
+    const W = labelW + 7 * (bw + gap); // f(7箱)を最大幅に固定
+    let y = 0,
+      s = "";
+    rows.forEach((k) => {
+      const type = k[1],
+        m = BOXN[type],
+        col = OCOL[type],
+        n = c[k];
+      s += `<text x="0" y="${y + bh - 6}" font-size="11" fill="var(--soft)"
+          font-family="Bahnschrift,DIN Alternate,sans-serif">${k}</text>`;
+      for (let b = 0; b < m; b++) {
+        const x = labelW + b * (bw + gap);
+        s += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="none" stroke="${col}" stroke-width="1.3"/>`;
+        const up = n > b, // 1本目（↑）は各箱に1つずつ
+          down = n > b + m; // 2本目（↓）は全箱に1本入ってから
+        if (up && down) {
+          s += orbArrow(x + bw * 0.34, y, bh, true, col);
+          s += orbArrow(x + bw * 0.66, y, bh, false, col);
+        } else if (up) {
+          s += orbArrow(x + bw * 0.5, y, bh, true, col);
+        }
+      }
+      y += bh + rowGap;
+    });
+    return `<svg viewBox="0 0 ${W} ${y}" width="${W}" height="${y}" class="orb-boxes" aria-hidden="true">${s}</svg>`;
+  }
+  /* 中心から放射状に伸びる1ローブ（楕円）。軌道の形の部品 */
+  function orbLobe(cx, cy, ang, len, wid) {
+    const rad = (ang * Math.PI) / 180;
+    const ex = cx + (Math.cos(rad) * len) / 2,
+      ey = cy + (Math.sin(rad) * len) / 2;
+    return `<ellipse cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" rx="${(
+      len / 2
+    ).toFixed(1)}" ry="${(wid / 2).toFixed(1)}" transform="rotate(${ang} ${ex.toFixed(
+      1
+    )} ${ey.toFixed(1)})" fill-opacity="0.3"/>`;
+  }
+  const SHAPE_ANG = { p: [90, 270], d: [45, 135, 225, 315], f: [30, 90, 150, 210, 270, 330] };
+  function orbShapeBody(tp, cx, cy, r) {
+    if (tp === "s") return `<circle cx="${cx}" cy="${cy}" r="${r}" fill-opacity="0.3"/>`;
+    const len = tp === "f" ? r * 1.2 : r * 1.4,
+      wid = tp === "d" ? r * 0.62 : tp === "f" ? r * 0.5 : r * 0.8;
+    return SHAPE_ANG[tp].map((a) => orbLobe(cx, cy, a, len, wid)).join("");
+  }
+  /* B. 軌道の形: s/p/d/f を描き、この元素が電子を持つ型だけ濃く表示 */
+  function drawOrbShapes(z) {
+    const c = config(z);
+    const present = new Set(ORDER.filter((k) => c[k] > 0).map((k) => k[1]));
+    const types = ["s", "p", "d", "f"];
+    const cell = 46,
+      r = 15,
+      cy = 22;
+    const W = cell * types.length,
+      H = cy + r + 20;
+    let s = "";
+    types.forEach((tp, i) => {
+      const cx = cell * i + cell / 2,
+        on = present.has(tp),
+        col = on ? OCOL[tp] : "var(--rule)",
+        op = on ? 1 : 0.35;
+      s += `<g opacity="${op}" fill="${col}" stroke="${col}" stroke-width="1.2">${orbShapeBody(
+        tp,
+        cx,
+        cy,
+        r
+      )}</g>`;
+      s += `<text x="${cx}" y="${cy + r + 15}" text-anchor="middle" font-size="12" font-weight="600" fill="${col}" opacity="${op}" stroke="none">${tp}</text>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="orb-shapes" aria-hidden="true">${s}</svg>`;
   }
 
   /* ====================== 6. スクロール → 表示 ====================== */
@@ -1472,6 +1684,14 @@
       title: "元素ベルト｜Element Belt",
       langHeading: "言語 / Language",
       bohrCap: "電子の配置図",
+      orbBoxCap: "電子の入り方（↑↓ はスピンの向き）",
+      orbShapeCap: "軌道の形（この元素が使う型を濃く表示）",
+      aria_flame: "炎色反応",
+      flameHead: "炎色反応",
+      flameDesc:
+        "この元素を炎に入れると、電子のはたらきで<b>特有の色</b>に光ります。この光を分けると、決まった<b>波長</b>の輝線が見られます。",
+      flameColorLbl: "色",
+      flameWaveLbl: "光の波長",
       aria_menubtn: "使い方・情報を開く",
       aria_close: "閉じる",
       aria_bohr: "電子の配置図。押すと拡大表示",
@@ -1542,6 +1762,14 @@
       title: "Element Belt",
       langHeading: "言語 / Language",
       bohrCap: "Electron configuration diagram",
+      orbBoxCap: "How electrons fill in (↑↓ = spin direction)",
+      orbShapeCap: "Orbital shapes (types this element uses are highlighted)",
+      aria_flame: "Flame test colour",
+      flameHead: "Flame test",
+      flameDesc:
+        "Held in a flame, this element glows a <b>characteristic colour</b> thanks to its electrons. Split the light and you see bright lines at fixed <b>wavelengths</b>.",
+      flameColorLbl: "Colour",
+      flameWaveLbl: "Wavelength",
       aria_menubtn: "Open help and information",
       aria_close: "Close",
       aria_bohr: "Electron configuration diagram. Tap to enlarge.",
@@ -1946,12 +2174,39 @@
 
     /* 表示内容を決める。#bohr は現在の電子配置図を拡大複製、それ以外は data-tip */
     function contentFor(el) {
-      if (el.id === "bohr")
-        return `<svg viewBox="0 0 200 200" class="tip-bohr">${el.innerHTML}</svg><div class="tip-cap">${t(
-          "bohrCap"
-        )}</div>`;
+      /* #bohr と #shells は共通表示: ボーア図 → 殻の説明文を縦に並べる。
+         どちらから開いても図は #bohr の現在の中身を参照する */
+      if (el.id === "bohr" || el.id === "shells")
+        return (
+          `<svg viewBox="0 0 200 200" class="tip-bohr">${
+            document.getElementById("bohr").innerHTML
+          }</svg>` +
+          `<div class="tip-cap">${t("bohrCap")}</div>` +
+          `<div class="tip-shells-text">${t("tip_shells")}</div>`
+        );
       if (el.id === "jp")
         return `<b>${nameSym(EL[cur])}</b><br>${desc(cur + 1)}`;
+      if (el.id === "flamebtn") {
+        const d = FLAME[cur + 1];
+        return (
+          `<div class="tip-flame"><span class="flame-swatch" style="background:${d.c}"></span><b>${t(
+            "flameHead"
+          )}</b></div>` +
+          `${t("flameDesc")}` +
+          `<div class="tip-flame-row">${t("flameColorLbl")}: <b>${
+            LANG === "en" ? d.en : d.ja
+          }</b> ／ ${t("flameWaveLbl")}: ${d.nm}</div>`
+        );
+      }
+      /* #orb は #bohr/#shells と同じく「図が上・説明文が下」に揃える */
+      if (el.id === "orb")
+        return (
+          `<div class="tip-orb-a">${drawOrbBoxes(cur + 1)}</div>` +
+          `<div class="tip-cap">${t("orbBoxCap")}</div>` +
+          `<div class="tip-orb-b">${drawOrbShapes(cur + 1)}</div>` +
+          `<div class="tip-cap">${t("orbShapeCap")}</div>` +
+          `<div class="tip-shells-text">${t("tip_orb")}</div>`
+        );
       return el.getAttribute("data-tip");
     }
     function show(el) {
@@ -1977,7 +2232,7 @@
       tip.setAttribute("aria-hidden", "true");
     }
 
-    document.querySelectorAll("[data-tip], #bohr, #jp").forEach((el) => {
+    document.querySelectorAll("[data-tip], #bohr, #jp, #flamebtn").forEach((el) => {
       /* キーボード操作対応（Tab で到達・Enter/Space で開閉・フォーカスで表示） */
       if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "0");
       el.setAttribute("role", "button");
