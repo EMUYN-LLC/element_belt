@@ -120,6 +120,7 @@
     align-items: center;
     overflow-x: auto;
     overflow-y: hidden;
+    overscroll-behavior: contain; /* スクロールがページ全体へ伝播するのを防ぐ */
     touch-action: pan-x;
     cursor: grab;
     -webkit-overflow-scrolling: touch;
@@ -1550,12 +1551,16 @@
     }
     lastY = e.clientY;
   });
-  function up() {
+  function up(e) {
     if (!down) return;
     down = false;
     if (flying) return;
     scene.classList.remove("dragging");
-    snapToCenter(); // 指を離したら即吸着（ゆっくり動かして離した場合の取りこぼし対策）
+    /* ドラッグ解放時の即吸着は「ゆっくり動かして離した場合の取りこぼし対策」。
+       ただしタッチ環境で解放時に scrollTo すると、ネイティブ慣性/オーバースクロールと
+       競合して横スクロールがページ全体へ伝播する（コミット b29843b で削除された挙動）。
+       そのためマウス等（非タッチ）のみ即吸着し、タッチは scroll デバウンスの吸着に任せる */
+    if (!e || e.pointerType !== "touch") snapToCenter();
   }
   scene.addEventListener("pointerup", up);
   scene.addEventListener("pointercancel", up);
