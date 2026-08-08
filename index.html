@@ -949,9 +949,7 @@
   （中央＝主帯を基準に、上下へ順に押し出す。すき間があれば高さそのまま）。
    COLS[i]=その列のセル一覧、COLDIV[i]=列コンテナ（魚眼で拡大する） */
   const COLS = [],
-    COLDIV = [],
-    W = [],
-    L = [];
+    COLDIV = [];
   let PAD = 0;
   function buildTrack() {
     track.innerHTML = "";
@@ -1013,41 +1011,94 @@
     }
   }
 
-  /* 魚眼：画面中央に近い列ほど拡大する（中央1.5・±1=1.3・±2=1.1・以遠1.0）。
-   スクロールに追従。列を横にずらして重ならないよう再配置する */
-  const mag = (d) => {
-    d = Math.abs(d);
-    return d >= 2.5 ? 1 : 1.5 - 0.2 * d;
+  /* 魚眼（双曲線・焦点透視モデル）
+     斜め直線を軸まわりに回した突合円錐を、軸に平行な面で切ると断面は双曲線（向かい合う2枝）。
+     周期表を一方の枝に沿って等弧長で曲げ、反対の枝の焦点 F+=(c,0) から眺める、という構図。
+      ・横：F+ から見た方位角 θ で配置。視野は ±α（円錐の半頂角）に収まり、端ほど連続的に圧縮
+      ・縦：F+ から壁までの距離 r による 1/r 縮小（主帯は視点と同じ高さ線上なので純粋に 1/r）
+     形状は離心率 e = 1/cosα だけで決まる（切断面の距離は縮尺のみ）。α が唯一のツマミ。
+     左枝 (X=−a·cosh u, Y=b·sinh u, a=1) について
+       r(u)=1+e·cosh u,  tanθ=k·sinh u/(cosh u+e),  k=√(e²−1)=tanα,  θ→α (u→∞) */
+  /* 円錐の半頂角 α（唯一の形状パラメータ）。URL の ?a= / ?alpha= で度数指定可（既定60°、1〜89にクランプ） */
+  const FISH_ALPHA_DEG = (() => {
+    const p = new URLSearchParams(location.search);
+    const v = parseFloat(p.get("a") ?? p.get("alpha"));
+    return Number.isFinite(v) ? Math.max(1, Math.min(89, v)) : 60;
+  })();
+  const FISH_ALPHA = (FISH_ALPHA_DEG * Math.PI) / 180;
+  const FISH_E = 1 / Math.cos(FISH_ALPHA); // 離心率 e = secα
+  const FISH_K = Math.tan(FISH_ALPHA); // √(e²−1) = tanα（漸近方向）
+  const FISH_M = 1.5; // 中央列の横ピーク倍率
+  const FISH_SY = 1.2; // 中央列の縦ピーク倍率
+  const FISH_BETA = 1.2; // 視野の張り出し（>1 で端をより画面外へ圧縮）
+
+  /* 弧長 s(u)=∫₀ᵘ√(e²cosh²τ−1)dτ の逆引き表（a=1 の無次元、e 依存で一度だけ構築）。
+     紙は均一 → 列は枝上を等弧長に並べる。列距離×間隔 P = 弧長 s を u に戻すのに使う */
+  const _uTab = [],
+    _sTab = [];
+  (function buildArcTable() {
+    const du = 0.005,
+      uMax = 6;
+    let s = 0,
+      prev = Math.sqrt(FISH_E * FISH_E - 1); // u=0 の被積分 √(e²−1)
+    _uTab.push(0);
+    _sTab.push(0);
+    for (let u = du; u <= uMax + 1e-9; u += du) {
+      const ch = Math.cosh(u);
+      const cur = Math.sqrt(FISH_E * FISH_E * ch * ch - 1);
+      s += ((prev + cur) / 2) * du; // 台形則
+      prev = cur;
+      _uTab.push(u);
+      _sTab.push(s);
+    }
+  })();
+  /* 符号付き弧長 s → パラメータ u（単調な _sTab を二分探索して線形補間） */
+  const arcToU = (s) => {
+    const sgn = s < 0 ? -1 : 1,
+      a = Math.abs(s),
+      last = _sTab.length - 1;
+    if (a >= _sTab[last]) return sgn * _uTab[last];
+    let lo = 0,
+      hi = last;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (_sTab[mid] <= a) lo = mid;
+      else hi = mid;
+    }
+    const f = (a - _sTab[lo]) / (_sTab[hi] - _sTab[lo] || 1);
+    return sgn * (_uTab[lo] + f * (_uTab[hi] - _uTab[lo]));
   };
+
   function layoutFisheye() {
     const N = EL.length,
       cw = scene.clientWidth,
       cx = cw / 2,
-      t = scene.scrollLeft / CW;
-    let acc = 0;
+      t = scene.scrollLeft / CW,
+      e = FISH_E,
+      k = FISH_K;
+    /* Kth=px/rad, P=紙の列間隔（a=1 無次元）。中央列幅=M·CW、視野半角 α が ~β·cw/2 に対応 */
+    const Kth = (FISH_BETA * cw) / (2 * FISH_ALPHA);
+    const P = (FISH_M * CW * (1 + e)) / Kth;
     for (let i = 0; i < N; i++) {
-      W[i] = mag(i - t) * CW;
-      L[i] = acc;
-      acc += W[i];
-    }
-    /* 連続 index t を「列の中心」基準で画面中央(cx)に合わせる。
-     A[i]=列 i の中心（拡大後座標）。t が整数なら列中心がちょうど cx に来る */
-    const fi = Math.max(0, Math.min(N - 1, Math.floor(t))),
-      fr = t - fi;
-    const Afi = L[fi] + W[fi] / 2;
-    const Afi1 = fi + 1 < N ? L[fi + 1] + W[fi + 1] / 2 : Afi + W[fi];
-    const shift = cx - (Afi + fr * (Afi1 - Afi));
-    for (let i = 0; i < N; i++) {
-      const scr = L[i] + W[i] / 2 + shift; // 目標スクリーン中心
+      const u = arcToU((i - t) * P);
+      const ch = Math.cosh(u),
+        sh = Math.sinh(u);
+      const theta = Math.atan2(k * sh, ch + e); // F+ から見た方位角
+      const scr = cx + Kth * theta; // 目標スクリーン中心
       const col = COLDIV[i];
       if (scr < -CW * 2 || scr > cw + CW * 2) {
         if (col.style.visibility !== "hidden") col.style.visibility = "hidden";
         continue;
       }
       col.style.visibility = "";
+      /* 横スケール=画面px幅/CW。dθ/ds=(dθ/du)/(ds/du)、dθ/du=k(1+e·ch)/(k²sh²+(ch+e)²) */
+      const dth_du =
+        (k * (1 + e * ch)) / (k * k * sh * sh + (ch + e) * (ch + e));
+      const ds_du = Math.sqrt(e * e * ch * ch - 1);
+      const sx = (Kth * (dth_du / ds_du) * P) / CW;
+      /* 縦スケール=1/r。r=1+e·cosh u（a=1）、中央 r=1+e で FISH_SY */
+      const sy = (FISH_SY * (1 + e)) / (1 + e * ch);
       const nominal = PAD + i * CW + CW / 2 - scene.scrollLeft; // 変形前のスクリーン中心
-      const sx = W[i] / CW,
-        sy = 1 + (sx - 1) * 0.4; // 横は最大1.5、縦は最大1.2
       col.style.transform = `translateX(${(scr - nominal).toFixed(
         2
       )}px) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
