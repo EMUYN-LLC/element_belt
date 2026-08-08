@@ -135,8 +135,19 @@
     scroll-snap-type: none;
   }
   .track {
+    /* スクロール範囲を作るスペーサ。実際の列は中の .stage に置く。
+       ※ここに transform を付けると中の sticky(.stage) が壊れるので付けないこと */
     position: relative;
     flex: 0 0 auto;
+  }
+  .stage {
+    /* スペーサ内でビューポート幅ぶんだけ画面左に貼り付く固定ステージ。
+       列はこの中に絶対配置し、JS の transform で魚眼配置する。
+       これでネイティブ横スクロールと視覚レイヤを分離し、モバイルの横滑りを防ぐ */
+    position: sticky;
+    left: 0;
+    top: 0;
+    height: 100%;
     will-change: transform;
   }
   .col {
@@ -578,7 +589,7 @@
 <!-- 全画面の周期表。readout / legend / footer をこの上に重ねる -->
 <div class="viewport">
   <div class="scene" id="scene" tabindex="0" aria-label="元素ベルト" data-i18n-aria="aria_scene">
-    <div class="track" id="track"></div>
+    <div class="track" id="track"><div class="stage" id="stage"></div></div>
   </div>
   <div class="centerbox" id="centerbox"></div>
 </div>
@@ -938,6 +949,7 @@
   const TRACKH = 2 * CENTERY;
 
   const track = document.getElementById("track");
+  const stage = document.getElementById("stage");
   const scene = document.getElementById("scene");
   track.style.height = TRACKH + "px";
 
@@ -953,7 +965,7 @@
     COLDIV = [];
   let PAD = 0;
   function buildTrack() {
-    track.innerHTML = "";
+    stage.innerHTML = "";
     COLS.length = 0;
     COLDIV.length = 0;
     for (let i = 0; i < EL.length; i++) {
@@ -1006,7 +1018,7 @@
         col.appendChild(d);
         cells.push(d);
       }
-      track.appendChild(col);
+      stage.appendChild(col);
       COLDIV.push(col);
       COLS.push(cells);
     }
@@ -1087,19 +1099,22 @@
       const theta = Math.atan2(k * sh, ch + e); // F+ から見た方位角
       const scr = cx + Kth * theta; // 目標スクリーン中心
       const col = COLDIV[i];
-      if (scr < -CW * 2 || scr > cw + CW * 2) {
-        if (col.style.visibility !== "hidden") col.style.visibility = "hidden";
-        continue;
-      }
-      col.style.visibility = "";
       /* 横スケール=画面px幅/CW。dθ/ds=(dθ/du)/(ds/du)、dθ/du=k(1+e·ch)/(k²sh²+(ch+e)²) */
       const dth_du =
         (k * (1 + e * ch)) / (k * k * sh * sh + (ch + e) * (ch + e));
       const ds_du = Math.sqrt(e * e * ch * ch - 1);
       const sx = (Kth * (dth_du / ds_du) * P) / CW;
+      /* 画面外・サブピクセル(実質不可視)の列は描画しない。
+         全118列を毎フレーム合成すると重く、モバイルで破綻するため中央付近だけに絞る */
+      if (scr < -CW || scr > cw + CW || sx * CW < 1) {
+        if (col.style.display !== "none") col.style.display = "none";
+        continue;
+      }
+      if (col.style.display) col.style.display = "";
       /* 縦スケール=1/r。r=1+e·cosh u（a=1）、中央 r=1+e で FISH_SY */
       const sy = (FISH_SY * (1 + e)) / (1 + e * ch);
-      const nominal = PAD + i * CW + CW / 2 - scene.scrollLeft; // 変形前のスクリーン中心
+      /* .track を sticky で画面固定にしたので nominal から scrollLeft を引かない */
+      const nominal = PAD + i * CW + CW / 2; // 変形前のスクリーン中心
       col.style.transform = `translateX(${(scr - nominal).toFixed(
         2
       )}px) scale(${sx.toFixed(3)}, ${sy.toFixed(3)})`;
@@ -1448,7 +1463,7 @@
     const span = (EL.length - 1) * CW;
     const frac =
       span > 0 ? Math.max(0, Math.min(1, scene.scrollLeft / span)) : 0.5;
-    track.style.transform = `translateY(${(AMP * (2 * frac - 1)).toFixed(1)}px)`;
+    stage.style.transform = `translateY(${(AMP * (2 * frac - 1)).toFixed(1)}px)`;
     const i = Math.max(
       0,
       Math.min(EL.length - 1, Math.round(scene.scrollLeft / CW))
@@ -1483,7 +1498,8 @@
   /* 余白と中央枠の幅を合わせる */
   function sizePads() {
     PAD = (scene.clientWidth - CW) / 2;
-    track.style.width = PAD * 2 + EL.length * CW + "px";
+    track.style.width = PAD * 2 + EL.length * CW + "px"; // スペーサ＝スクロール範囲
+    stage.style.width = scene.clientWidth + "px"; // 固定ステージ＝ビューポート幅（sticky が効く条件）
     document.getElementById("centerbox").style.width = CW * 1.5 + "px";
     /* 凡例・価数ラベルは readout の下（viewport の見えている部分）へ。同じ高さ */
     const topY = document.querySelector(".readout").offsetHeight + 6 + "px";
@@ -1551,16 +1567,17 @@
     }
     lastY = e.clientY;
   });
-  function up(e) {
+  function up() {
     if (!down) return;
     down = false;
     if (flying) return;
     scene.classList.remove("dragging");
-    /* ドラッグ解放時の即吸着は「ゆっくり動かして離した場合の取りこぼし対策」。
-       ただしタッチ環境で解放時に scrollTo すると、ネイティブ慣性/オーバースクロールと
-       競合して横スクロールがページ全体へ伝播する（コミット b29843b で削除された挙動）。
-       そのためマウス等（非タッチ）のみ即吸着し、タッチは scroll デバウンスの吸着に任せる */
-    if (!e || e.pointerType !== "touch") snapToCenter();
+    /* 指を離したら吸着タイマーを張り直す。勢いスクロールをタップで止めたときや、
+       ゆっくりドラッグして離したときの「scroll イベントが来ず吸着が張り直されない」
+       取りこぼしを防ぐ。慣性が続く場合は後続の scroll イベントが張り直すので競合しない
+       （横滑りの真因は stage 分離で解消済みなので、旧タッチ除外ゲートは撤去） */
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(snapToCenter, 110);
   }
   scene.addEventListener("pointerup", up);
   scene.addEventListener("pointercancel", up);
